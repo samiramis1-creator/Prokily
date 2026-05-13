@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title id="page-title">ضمان المشاركة</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root {
+      --teal:#14C9A8; --teal-dark:#0CA88A; --teal-light:#3DDFC0;
+      --navy:#1B2B6B; --navy-dark:#0D1845; --navy-mid:#1e3275;
+      --white:#ffffff; --white-dim:rgba(255,255,255,.7);
+      --gold:#FFD166; --red:#e53935;
+    }
+    html,body { height:100%; }
+    body {
+      font-family:'Cairo',sans-serif;
+      background:linear-gradient(160deg,var(--navy-dark) 0%,var(--navy) 60%,var(--navy-dark) 100%);
+      color:var(--white); min-height:100dvh;
+      display:flex; flex-direction:column;
+    }
+
+    /* BG PARTICLES */
+    #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+    /* HEADER */
+    .header {
+      position:relative; z-index:2;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 20px; flex-shrink:0;
+      background:linear-gradient(180deg,rgba(13,24,69,.8),transparent);
+    }
+    .back-btn {
+      display:flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+      border-radius:50px; padding:8px 16px;
+      color:var(--white); font-family:'Cairo',sans-serif;
+      font-size:14px; font-weight:700; cursor:pointer;
+      transition:background .2s;
+    }
+    .back-btn:active { background:rgba(255,255,255,.15); }
+    .back-arrow { font-size:18px; }
+    .lang-btn {
+      background:none; border:1.5px solid var(--teal);
+      color:var(--teal); padding:7px 16px; border-radius:20px;
+      font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; cursor:pointer;
+    }
+    .lang-btn:active { background:var(--teal); color:var(--navy-dark); }
+
+    /* MAIN */
+    .main { flex:1; display:flex; flex-direction:column; align-items:center; padding:10px 22px 40px; position:relative; z-index:2; }
+
+    /* LOGO */
+    .logo-row { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+    .logo-row img.li { width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid rgba(20,201,168,.4); }
+    .logo-row img.lb { height:34px; object-fit:contain; border-radius:8px; }
+
+    /* SUCCESS BADGE */
+    .success-badge {
+      display:flex; flex-direction:column; align-items:center; gap:12px;
+      margin-bottom:24px;
+    }
+    .check-ring {
+      width:88px; height:88px; border-radius:50%;
+      background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 0 40px rgba(20,201,168,.4), 0 0 80px rgba(20,201,168,.1);
+      animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+      position:relative;
+    }
+    .check-ring::before {
+      content:''; position:absolute; inset:-6px; border-radius:50%;
+      border:2px solid rgba(20,201,168,.3); animation:spinRing 3s linear infinite;
+    }
+    @keyframes spinRing { to{transform:rotate(360deg)} }
+    @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .check-ring svg { width:46px; height:46px; fill:none; stroke:white; stroke-width:3; }
+    .badge-title { font-size:22px; font-weight:900; color:var(--white); text-align:center; }
+    .badge-sub { font-size:13px; color:var(--white-dim); text-align:center; line-height:1.6; }
+
+    /* SHARE CARD */
+    .share-card {
+      width:100%; background:rgba(255,255,255,.05);
+      border:1px solid rgba(20,201,168,.25); border-radius:24px;
+      padding:22px 20px; margin-bottom:20px;
+    }
+    .share-card-title {
+      font-size:16px; font-weight:800; color:var(--teal);
+      text-align:center; margin-bottom:6px;
+    }
+    .share-card-desc {
+      font-size:13px; color:var(--white-dim); text-align:center;
+      line-height:1.7; margin-bottom:20px;
+    }
+    .share-card-desc span { color:var(--gold); font-weight:800; }
+
+    /* COUNTER */
+    .counter-wrap { display:flex; gap:12px; justify-content:center; margin-bottom:20px; }
+    .counter-box {
+      flex:1; background:rgba(0,0,0,.2); border:1px solid rgba(20,201,168,.2);
+      border-radius:16px; padding:14px 10px; text-align:center;
+      transition:all .3s;
+    }
+    .counter-box.done { border-color:var(--teal); background:rgba(20,201,168,.1); }
+    .counter-box.done .cb-icon { filter:none; opacity:1; }
+    .cb-icon { font-size:26px; opacity:.35; filter:grayscale(1); transition:all .3s; }
+    .cb-num { font-size:11px; font-weight:700; color:var(--white-dim); margin-top:4px; }
+
+    /* SHARE BUTTONS */
+    .share-btns { display:flex; flex-direction:column; gap:12px; }
+    .share-btn {
+      width:100%; display:flex; align-items:center; gap:14px;
+      padding:15px 18px; border-radius:16px; border:none;
+      font-family:'Cairo',sans-serif; font-size:15px; font-weight:800;
+      cursor:pointer; transition:transform .15s, box-shadow .15s;
+      position:relative; overflow:hidden;
+    }
+    .share-btn:active { transform:scale(.97); }
+    .share-btn .sb-icon { font-size:24px; flex-shrink:0; }
+    .share-btn .sb-text { flex:1; text-align:right; }
+    .share-btn .sb-badge {
+      font-size:11px; font-weight:700; padding:3px 10px;
+      border-radius:50px; background:rgba(255,255,255,.2);
+    }
+    .share-btn.whatsapp { background:linear-gradient(135deg,#25D366,#128C7E); color:white; box-shadow:0 4px 20px rgba(37,211,102,.25); }
+    .share-btn.copy { background:rgba(255,255,255,.08); border:1px solid rgba(20,201,168,.3); color:var(--white); }
+    .share-btn.copy.copied { background:rgba(20,201,168,.15); border-color:var(--teal); }
+
+    /* LINK BOX */
+    .link-box {
+      display:flex; align-items:center; gap:10px;
+      background:rgba(0,0,0,.25); border:1px solid rgba(20,201,168,.2);
+      border-radius:14px; padding:12px 16px; margin-bottom:16px;
+    }
+    .link-text { flex:1; font-size:14px; font-weight:700; color:var(--teal); direction:ltr; word-break:break-all; }
+    .copy-icon-btn {
+      background:none; border:none; cursor:pointer;
+      font-size:20px; padding:4px; transition:transform .15s;
+    }
+    .copy-icon-btn:active { transform:scale(.85); }
+
+    /* PROGRESS STEPS */
+    .progress-steps {
+      width:100%; background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08); border-radius:20px;
+      padding:18px 20px; margin-bottom:20px;
+    }
+    .ps-title { font-size:14px; font-weight:800; color:var(--white); margin-bottom:14px; text-align:center; }
+    .ps-bar-wrap { height:8px; background:rgba(255,255,255,.08); border-radius:4px; margin-bottom:10px; overflow:hidden; }
+    .ps-bar { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--teal),var(--teal-dark)); transition:width .5s ease; }
+    .ps-count { font-size:13px; color:var(--white-dim); text-align:center; }
+    .ps-count span { color:var(--teal); font-weight:900; font-size:16px; }
+
+    /* GUARANTEE BOX */
+    .guarantee-box {
+      width:100%; display:flex; align-items:flex-start; gap:14px;
+      background:linear-gradient(135deg,rgba(20,201,168,.1),rgba(20,201,168,.03));
+      border:1px solid rgba(20,201,168,.3); border-radius:18px;
+      padding:16px 18px; margin-bottom:20px;
+    }
+    .gb-icon { font-size:28px; flex-shrink:0; margin-top:2px; }
+    .gb-text { font-size:13px; color:var(--white-dim); line-height:1.7; }
+    .gb-text strong { color:var(--teal); font-weight:800; }
+
+    /* HOME BTN */
+    .home-btn {
+      width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15);
+      border-radius:50px; padding:14px;
+      font-family:'Cairo',sans-serif; font-size:15px; font-weight:700;
+      color:var(--white); cursor:pointer; transition:background .2s;
+      text-decoration:none;
+    }
+    .home-btn:active { background:rgba(255,255,255,.12); }
+
+    /* TOAST */
+    .toast {
+      position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+      background:var(--teal); color:var(--navy-dark);
+      font-family:'Cairo',sans-serif; font-size:14px; font-weight:800;
+      padding:12px 24px; border-radius:50px;
+      box-shadow:0 8px 24px rgba(0,0,0,.3);
+      opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap; z-index:999;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* FR */
+    body.fr .back-btn { flex-direction:row-reverse; }
+    body.fr .back-arrow { transform:scaleX(-1); display:inline-block; }
+    body.fr .share-btn .sb-text { text-align:left; }
+    body.fr .share-card-desc, body.fr .share-card-title { text-align:center; }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="lang-btn" id="lang-btn" onclick="toggleLang()">FR</button>
+  <button class="back-btn" onclick="window.location.href='index.html'">
+    <span class="back-arrow">›</span>
+    <span id="back-text">الصفحة الرئيسية</span>
+  </button>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LOGO -->
+  <div class="logo-row">
+    <img class="li" src="images/logo1.png" alt="" onerror="this.style.display='none'">
+    <img class="lb" src="images/logo.png" alt="" onerror="this.style.display='none'">
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-badge">
+    <div class="check-ring">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="badge-title" id="badge-title">تسجيلك مكتمل! 🎉</div>
+    <div class="badge-sub" id="badge-sub">خطوة أخيرة لضمان دخولك السحب</div>
+  </div>
+
+  <!-- GUARANTEE BOX -->
+  <div class="guarantee-box">
+    <span class="gb-icon">🛡️</span>
+    <div class="gb-text" id="gb-text">
+      لضمان دخولك في السحب الرسمي لجوائز مصرفي، يجب مشاركة رابط المسابقة مع <strong>5 أشخاص على الأقل</strong>. بعد اكتمال المشاركات، سيتم تأكيد اسمك في قائمة المتسابقين.
+    </div>
+  </div>
+
+  <!-- SHARE CARD -->
+  <div class="share-card">
+    <div class="share-card-title" id="sc-title">🔗 شارك الرابط الآن</div>
+    <div class="share-card-desc" id="sc-desc">أرسل هذا الرابط إلى <span>5 أصدقاء أو أفراد عائلتك</span> لضمان مشاركتك</div>
+
+    <!-- LINK -->
+    <div class="link-box">
+      <button class="copy-icon-btn" onclick="copyLink()">📋</button>
+      <div class="link-text">https://molesportive.online</div>
+    </div>
+
+    <!-- SHARE BUTTONS -->
+    <div class="share-btns">
+      <button class="share-btn whatsapp" onclick="shareWhatsApp()">
+        <span class="sb-icon">💬</span>
+        <span class="sb-text" id="sb-wa">مشاركة عبر WhatsApp</span>
+        <span class="sb-badge" id="sb-wa-badge">مباشر</span>
+      </button>
+      <button class="share-btn copy" id="copy-btn" onclick="copyLink()">
+        <span class="sb-icon">🔗</span>
+        <span class="sb-text" id="sb-copy">نسخ الرابط</span>
+        <span class="sb-badge" id="sb-copy-badge">نسخ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-steps">
+    <div class="ps-title" id="ps-title">تقدم المشاركات</div>
+    <div class="ps-bar-wrap">
+      <div class="ps-bar" id="ps-bar" style="width:0%"></div>
+    </div>
+    <div class="ps-count" id="ps-count">
+      <span id="share-count">0</span> / 5
+    </div>
+    <!-- COUNTER ICONS -->
+    <div class="counter-wrap" id="counter-wrap">
+      <div class="counter-box" id="cb0"><div class="cb-icon">👤</div><div class="cb-num">1</div></div>
+      <div class="counter-box" id="cb1"><div class="cb-icon">👤</div><div class="cb-num">2</div></div>
+      <div class="counter-box" id="cb2"><div class="cb-icon">👤</div><div class="cb-num">3</div></div>
+      <div class="counter-box" id="cb3"><div class="cb-icon">👤</div><div class="cb-num">4</div></div>
+      <div class="counter-box" id="cb4"><div class="cb-icon">👤</div><div class="cb-num">5</div></div>
+    </div>
+  </div>
+
+  <!-- HOME BUTTON -->
+  <a class="home-btn" href="index.html">
+    <span></span>
+    <span id="home-btn-text">العودة إلى الصفحة الرئيسية</span>
+  </a>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const SHARE_URL = 'https://molesportive.online';
+
+const T = {
+  ar: {
+    pageTitle:'ضمان المشاركة', back:'الصفحة الرئيسية', langBtn:'FR',
+    badgeTitle:'تسجيلك مكتمل! 🎉', badgeSub:'خطوة أخيرة لضمان دخولك السحب',
+    gbText:'لضمان دخولك في السحب الرسمي لجوائز مصرفي، يجب مشاركة رابط المسابقة مع <strong>5 أشخاص على الأقل</strong>. بعد اكتمال المشاركات، سيتم تأكيد اسمك في قائمة المتسابقين.',
+    scTitle:'🔗 شارك الرابط الآن',
+    scDesc:'أرسل هذا الرابط إلى <span>5 أصدقاء أو أفراد عائلتك</span> لضمان مشاركتك',
+    sbWa:'مشاركة عبر WhatsApp', sbWaBadge:'مباشر',
+    sbCopy:'نسخ الرابط', sbCopyBadge:'نسخ',
+    psTitle:'تقدم المشاركات',
+    psCount:'/ 5',
+    homeBtn:'العودة إلى الصفحة الرئيسية',
+    toastCopied:'✅ تم نسخ الرابط!',
+    toastShared:'✅ تمت المشاركة!',
+    waMsg:'🎉 مصرفي يهديك فرصة الفوز!\n🏆 سيارة فارهة • منزل فاخر • iPhone 17\n💰 جوائز نقدية تصل إلى 35.000 أوقية\n\nسجّل الآن وشارك في السحب:',
+  },
+  fr: {
+    pageTitle:'Garantie de participation', back:'Page principale', langBtn:'AR',
+    badgeTitle:'Inscription complète ! 🎉', badgeSub:'Dernière étape pour garantir votre participation',
+    gbText:'Pour garantir votre entrée dans le tirage au sort officiel Masrvi, vous devez partager le lien du concours avec <strong>au moins 5 personnes</strong>. Une fois les partages complétés, votre nom sera confirmé sur la liste des participants.',
+    scTitle:'🔗 Partagez le lien maintenant',
+    scDesc:'Envoyez ce lien à <span>5 amis ou membres de la famille</span> pour garantir votre participation',
+    sbWa:'Partager via WhatsApp', sbWaBadge:'Direct',
+    sbCopy:'Copier le lien', sbCopyBadge:'Copier',
+    psTitle:'Progression des partages',
+    psCount:'/ 5',
+    homeBtn:'Retour à la page principale',
+    toastCopied:'✅ Lien copié !',
+    toastShared:'✅ Partagé !',
+    waMsg:'🎉 Masrvi vous offre une chance de gagner !\n🏆 Voiture luxe • Maison de rêve • iPhone 17\n💰 Prix en espèces jusqu\'à 35 000 MRU\n\nInscrivez-vous maintenant :',
+  }
+};
+
+let lang = localStorage.getItem('appLang') || 'ar';
+let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
+
+function applyLang() {
+  const t = T[lang];
+  document.title = t.pageTitle;
+  document.getElementById('page-title').textContent = t.pageTitle;
+  document.getElementById('back-text').textContent = t.back;
+  document.getElementById('lang-btn').textContent = t.langBtn;
+  document.getElementById('badge-title').textContent = t.badgeTitle;
+  document.getElementById('badge-sub').textContent = t.badgeSub;
+  document.getElementById('gb-text').innerHTML = t.gbText;
+  document.getElementById('sc-title').textContent = t.scTitle;
+  document.getElementById('sc-desc').innerHTML = t.scDesc;
+  document.getElementById('sb-wa').textContent = t.sbWa;
+  document.getElementById('sb-wa-badge').textContent = t.sbWaBadge;
+  document.getElementById('sb-copy').textContent = t.sbCopy;
+  document.getElementById('sb-copy-badge').textContent = t.sbCopyBadge;
+  document.getElementById('ps-title').textContent = t.psTitle;
+  document.getElementById('home-btn-text').textContent = t.homeBtn;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.body.classList.toggle('fr', lang === 'fr');
+}
+function toggleLang() {
+  lang = lang === 'ar' ? 'fr' : 'ar';
+  localStorage.setItem('appLang', lang);
+  applyLang();
+}
+
+/* COUNTER */
+function updateCounter() {
+  const pct = Math.min(shareCount / 5 * 100, 100);
+  document.getElementById('ps-bar').style.width = pct + '%';
+  document.getElementById('share-count').textContent = Math.min(shareCount, 5);
+  for (let i = 0; i < 5; i++) {
+    const box = document.getElementById('cb' + i);
+    if (i < shareCount) {
+      box.classList.add('done');
+      box.querySelector('.cb-icon').textContent = '✅';
+    } else {
+      box.classList.remove('done');
+      box.querySelector('.cb-icon').textContent = '👤';
+    }
+  }
+}
+
+function recordShare() {
+  if (shareCount < 5) {
+    shareCount++;
+    localStorage.setItem('shareCount', shareCount);
+  }
+  updateCounter();
+}
+
+/* SHARE */
+function shareWhatsApp() {
+  const t = T[lang];
+  const msg = encodeURIComponent(t.waMsg + '\n' + SHARE_URL);
+  window.open('https://wa.me/?text=' + msg, '_blank');
+  recordShare();
+  showToast(t.toastShared);
+}
+
+function copyLink() {
+  const t = T[lang];
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(SHARE_URL).then(() => {
+      recordShare();
+      showToast(t.toastCopied);
+      const btn = document.getElementById('copy-btn');
+      btn.classList.add('copied');
+      document.getElementById('sb-copy').textContent = '✅ ' + t.toastCopied;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        document.getElementById('sb-copy').textContent = t.sbCopy;
+      }, 2500);
+    });
+  } else {
+    // Fallback
+    const el = document.createElement('textarea');
+    el.value = SHARE_URL;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    recordShare();
+    showToast(t.toastCopied);
+  }
+}
+
+/* TOAST */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* PARTICLES */
+(function() {
+  const cv = document.getElementById('bg-canvas');
+  const cx = cv.getContext('2d');
+  let pts = [];
+
+  function resize() {
+    cv.width = window.innerWidth;
+    cv.height = window.innerHeight;
+    pts = Array.from({length:50}, () => ({
+      x:Math.random()*cv.width, y:Math.random()*cv.height,
+      vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25,
+      r:Math.random()*1.8+.4, phase:Math.random()*Math.PI*2
+    }));
+  }
+  function draw() {
+    cx.clearRect(0,0,cv.width,cv.height);
+    const now = Date.now()*.001;
+    pts.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=cv.width; if(p.x>cv.width)p.x=0;
+      if(p.y<0)p.y=cv.height; if(p.y>cv.height)p.y=0;
+      const a=(Math.sin(now+p.phase)*.3+.5)*0.5;
+      cx.beginPath(); cx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      cx.fillStyle=`rgba(20,201,168,${a})`; cx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);
+  resize(); draw();
+})();
+
+/* INIT */
+applyLang();
+updateCounter();
+</script>
+</body>
+</html>
