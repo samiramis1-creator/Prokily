@@ -1,255 +1,301 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title id="page-title">ضمان المشاركة</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    :root {
-      --teal:#14C9A8; --teal-dark:#0CA88A; --teal-light:#3DDFC0;
-      --navy:#1B2B6B; --navy-dark:#0D1845; --navy-mid:#1e3275;
-      --white:#ffffff; --white-dim:rgba(255,255,255,.7);
-      --gold:#FFD166; --red:#e53935;
-    }
-    html,body { height:100%; }
-    body {
-      font-family:'Cairo',sans-serif;
-      background:linear-gradient(160deg,var(--navy-dark) 0%,var(--navy) 60%,var(--navy-dark) 100%);
-      color:var(--white); min-height:100dvh;
-      display:flex; flex-direction:column;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0097A7">
+<title>ضمان المشاركة – Bankily</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;min-height:100vh;overflow-x:hidden}
+body{
+  font-family:'Cairo',sans-serif;
+  background:#f5f5f5;
+  color:#222;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+}
 
-    /* BG PARTICLES */
-    #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+/* ══ LOGO BAR — same as index ══ */
+.logo-bar{
+  background:#fff;
+  border-bottom:1px solid #e8e8e8;
+  padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 1px 8px rgba(0,0,0,.08);
+}
+.logo-bar img{height:44px;display:block}
+.logo-fallback{font-size:20px;font-weight:900;color:#0097A7;font-family:'Cairo',sans-serif}
+.lang-btn{
+  background:none;border:1.5px solid #0097A7;
+  border-radius:20px;color:#0097A7;
+  font-family:'Cairo',sans-serif;
+  font-size:13px;font-weight:700;
+  padding:5px 16px;cursor:pointer;
+  transition:all .2s;
+}
+.lang-btn:hover{background:#0097A7;color:#fff}
 
-    /* HEADER */
-    .header {
-      position:relative; z-index:2;
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px 20px; flex-shrink:0;
-      background:linear-gradient(180deg,rgba(13,24,69,.8),transparent);
-    }
-    .back-btn {
-      display:flex; align-items:center; gap:6px;
-      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
-      border-radius:50px; padding:8px 16px;
-      color:var(--white); font-family:'Cairo',sans-serif;
-      font-size:14px; font-weight:700; cursor:pointer;
-      transition:background .2s;
-    }
-    .back-btn:active { background:rgba(255,255,255,.15); }
-    .back-arrow { font-size:18px; }
-    .lang-btn {
-      background:none; border:1.5px solid var(--teal);
-      color:var(--teal); padding:7px 16px; border-radius:20px;
-      font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; cursor:pointer;
-    }
-    .lang-btn:active { background:var(--teal); color:var(--navy-dark); }
+/* ══ HERO STRIP — same gradient as index hero ══ */
+.hero-strip{
+  background:linear-gradient(135deg,#0097A7 0%,#007A8C 60%,#005F6E 100%);
+  padding:36px 20px 40px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero-strip::before{
+  content:'';position:absolute;top:-50px;right:-50px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.06);pointer-events:none;
+}
+.hero-strip::after{
+  content:'';position:absolute;bottom:-60px;left:-30px;
+  width:160px;height:160px;border-radius:50%;
+  background:rgba(255,255,255,.05);pointer-events:none;
+}
 
-    /* MAIN */
-    .main { flex:1; display:flex; flex-direction:column; align-items:center; padding:10px 22px 40px; position:relative; z-index:2; }
+/* Check circle */
+.check-circle{
+  width:80px;height:80px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  border:2px solid rgba(255,255,255,.4);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+  position:relative;z-index:1;
+}
+.check-circle svg{width:42px;height:42px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 
-    /* LOGO */
-    .logo-row { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
-    .logo-row img.li { width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid rgba(20,201,168,.4); }
-    .logo-row img.lb { height:34px; object-fit:contain; border-radius:8px; }
+.hero-strip h1{
+  font-size:clamp(1.4rem,5vw,2rem);font-weight:900;
+  color:#fff;margin-bottom:8px;position:relative;z-index:1;
+}
+.hero-strip p{
+  font-size:14px;color:rgba(255,255,255,.85);
+  position:relative;z-index:1;line-height:1.6;
+}
 
-    /* SUCCESS BADGE */
-    .success-badge {
-      display:flex; flex-direction:column; align-items:center; gap:12px;
-      margin-bottom:24px;
-    }
-    .check-ring {
-      width:88px; height:88px; border-radius:50%;
-      background:linear-gradient(135deg,var(--teal),var(--teal-dark));
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 0 40px rgba(20,201,168,.4), 0 0 80px rgba(20,201,168,.1);
-      animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;
-      position:relative;
-    }
-    .check-ring::before {
-      content:''; position:absolute; inset:-6px; border-radius:50%;
-      border:2px solid rgba(20,201,168,.3); animation:spinRing 3s linear infinite;
-    }
-    @keyframes spinRing { to{transform:rotate(360deg)} }
-    @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-    .check-ring svg { width:46px; height:46px; fill:none; stroke:white; stroke-width:3; }
-    .badge-title { font-size:22px; font-weight:900; color:var(--white); text-align:center; }
-    .badge-sub { font-size:13px; color:var(--white-dim); text-align:center; line-height:1.6; }
+/* ══ CONTENT ══ */
+.content{
+  max-width:560px;margin:0 auto;width:100%;
+  padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:16px;
+}
 
-    /* SHARE CARD */
-    .share-card {
-      width:100%; background:rgba(255,255,255,.05);
-      border:1px solid rgba(20,201,168,.25); border-radius:24px;
-      padding:22px 20px; margin-bottom:20px;
-    }
-    .share-card-title {
-      font-size:16px; font-weight:800; color:var(--teal);
-      text-align:center; margin-bottom:6px;
-    }
-    .share-card-desc {
-      font-size:13px; color:var(--white-dim); text-align:center;
-      line-height:1.7; margin-bottom:20px;
-    }
-    .share-card-desc span { color:var(--gold); font-weight:800; }
+/* ══ CARD — same style as stat-card / prize-card in index ══ */
+.card{
+  background:#fff;border-radius:16px;
+  border:1.5px solid #e8e8e8;
+  padding:20px 20px;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+.card-title{
+  font-size:15px;font-weight:800;color:#0097A7;
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-desc{
+  font-size:13px;color:#666;line-height:1.7;
+}
+.card-desc strong{color:#0097A7;font-weight:800}
+.card-desc span{color:#F5C20B;font-weight:800}
 
-    /* COUNTER */
-    .counter-wrap { display:flex; gap:12px; justify-content:center; margin-bottom:20px; }
-    .counter-box {
-      flex:1; background:rgba(0,0,0,.2); border:1px solid rgba(20,201,168,.2);
-      border-radius:16px; padding:14px 10px; text-align:center;
-      transition:all .3s;
-    }
-    .counter-box.done { border-color:var(--teal); background:rgba(20,201,168,.1); }
-    .counter-box.done .cb-icon { filter:none; opacity:1; }
-    .cb-icon { font-size:26px; opacity:.35; filter:grayscale(1); transition:all .3s; }
-    .cb-num { font-size:11px; font-weight:700; color:var(--white-dim); margin-top:4px; }
+/* ══ LINK BOX ══ */
+.link-box{
+  display:flex;align-items:center;gap:10px;
+  background:#f0f9fa;border:1.5px solid #b2e0e6;
+  border-radius:12px;padding:12px 16px;
+  margin:14px 0;
+}
+.link-text{
+  flex:1;font-size:14px;font-weight:700;
+  color:#0097A7;direction:ltr;word-break:break-all;
+}
+.copy-icon-btn{
+  background:none;border:none;cursor:pointer;
+  font-size:20px;padding:4px;
+  transition:transform .15s;flex-shrink:0;
+}
+.copy-icon-btn:active{transform:scale(.85)}
 
-    /* SHARE BUTTONS */
-    .share-btns { display:flex; flex-direction:column; gap:12px; }
-    .share-btn {
-      width:100%; display:flex; align-items:center; gap:14px;
-      padding:15px 18px; border-radius:16px; border:none;
-      font-family:'Cairo',sans-serif; font-size:15px; font-weight:800;
-      cursor:pointer; transition:transform .15s, box-shadow .15s;
-      position:relative; overflow:hidden;
-    }
-    .share-btn:active { transform:scale(.97); }
-    .share-btn .sb-icon { font-size:24px; flex-shrink:0; }
-    .share-btn .sb-text { flex:1; text-align:right; }
-    .share-btn .sb-badge {
-      font-size:11px; font-weight:700; padding:3px 10px;
-      border-radius:50px; background:rgba(255,255,255,.2);
-    }
-    .share-btn.whatsapp { background:linear-gradient(135deg,#25D366,#128C7E); color:white; box-shadow:0 4px 20px rgba(37,211,102,.25); }
-    .share-btn.copy { background:rgba(255,255,255,.08); border:1px solid rgba(20,201,168,.3); color:var(--white); }
-    .share-btn.copy.copied { background:rgba(20,201,168,.15); border-color:var(--teal); }
+/* ══ SHARE BUTTONS ══ */
+.share-btns{display:flex;flex-direction:column;gap:10px;margin-top:4px}
 
-    /* LINK BOX */
-    .link-box {
-      display:flex; align-items:center; gap:10px;
-      background:rgba(0,0,0,.25); border:1px solid rgba(20,201,168,.2);
-      border-radius:14px; padding:12px 16px; margin-bottom:16px;
-    }
-    .link-text { flex:1; font-size:14px; font-weight:700; color:var(--teal); direction:ltr; word-break:break-all; }
-    .copy-icon-btn {
-      background:none; border:none; cursor:pointer;
-      font-size:20px; padding:4px; transition:transform .15s;
-    }
-    .copy-icon-btn:active { transform:scale(.85); }
+.share-btn{
+  width:100%;display:flex;align-items:center;gap:12px;
+  padding:14px 18px;border-radius:14px;border:none;
+  font-family:'Cairo',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  position:relative;overflow:hidden;
+}
+.share-btn:active{transform:scale(.97)}
+.share-btn .sb-icon{font-size:22px;flex-shrink:0}
+.share-btn .sb-text{flex:1;text-align:right}
+html[dir="ltr"] .share-btn .sb-text{text-align:left}
+.share-btn .sb-badge{
+  font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:50px;
+  background:rgba(255,255,255,.25);
+  white-space:nowrap;
+}
 
-    /* PROGRESS STEPS */
-    .progress-steps {
-      width:100%; background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08); border-radius:20px;
-      padding:18px 20px; margin-bottom:20px;
-    }
-    .ps-title { font-size:14px; font-weight:800; color:var(--white); margin-bottom:14px; text-align:center; }
-    .ps-bar-wrap { height:8px; background:rgba(255,255,255,.08); border-radius:4px; margin-bottom:10px; overflow:hidden; }
-    .ps-bar { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--teal),var(--teal-dark)); transition:width .5s ease; }
-    .ps-count { font-size:13px; color:var(--white-dim); text-align:center; }
-    .ps-count span { color:var(--teal); font-weight:900; font-size:16px; }
+.share-btn.whatsapp{
+  background:linear-gradient(135deg,#25D366,#128C7E);
+  color:#fff;
+  box-shadow:0 4px 16px rgba(37,211,102,.25);
+}
+.share-btn.copy-btn-el{
+  background:#f8fcfd;
+  border:1.5px solid #b2e0e6;
+  color:#0097A7;
+}
+.share-btn.copy-btn-el.copied{
+  background:#e8f7f9;border-color:#0097A7;
+}
+.share-btn.copy-btn-el .sb-badge{
+  background:#e8f7f9;color:#0097A7;
+}
 
-    /* GUARANTEE BOX */
-    .guarantee-box {
-      width:100%; display:flex; align-items:flex-start; gap:14px;
-      background:linear-gradient(135deg,rgba(20,201,168,.1),rgba(20,201,168,.03));
-      border:1px solid rgba(20,201,168,.3); border-radius:18px;
-      padding:16px 18px; margin-bottom:20px;
-    }
-    .gb-icon { font-size:28px; flex-shrink:0; margin-top:2px; }
-    .gb-text { font-size:13px; color:var(--white-dim); line-height:1.7; }
-    .gb-text strong { color:var(--teal); font-weight:800; }
+/* ══ PROGRESS ══ */
+.progress-card{
+  background:#fff;border-radius:16px;
+  border:1.5px solid #e8e8e8;
+  padding:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+.progress-title{
+  font-size:14px;font-weight:800;color:#111;
+  text-align:center;margin-bottom:14px;
+}
+.ps-bar-wrap{
+  height:8px;background:#f0f0f0;
+  border-radius:4px;margin-bottom:10px;overflow:hidden;
+}
+.ps-bar{
+  height:100%;border-radius:4px;
+  background:linear-gradient(90deg,#0097A7,#00B8CC);
+  transition:width .5s ease;
+}
+.ps-count{
+  font-size:13px;color:#888;text-align:center;margin-bottom:16px;
+}
+.ps-count span{color:#0097A7;font-weight:900;font-size:16px}
 
-    /* HOME BTN */
-    .home-btn {
-      width:100%; display:flex; align-items:center; justify-content:center; gap:10px;
-      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15);
-      border-radius:50px; padding:14px;
-      font-family:'Cairo',sans-serif; font-size:15px; font-weight:700;
-      color:var(--white); cursor:pointer; transition:background .2s;
-      text-decoration:none;
-    }
-    .home-btn:active { background:rgba(255,255,255,.12); }
+/* Counter boxes — same look as stat-card */
+.counter-row{display:flex;gap:8px;justify-content:center}
+.counter-box{
+  flex:1;background:#f8fcfd;
+  border:1.5px solid #e8e8e8;
+  border-radius:12px;padding:12px 8px;
+  text-align:center;transition:all .3s;
+}
+.counter-box.done{border-color:#0097A7;background:#e8f7f9}
+.cb-icon{font-size:22px;opacity:.35;transition:all .3s}
+.counter-box.done .cb-icon{opacity:1}
+.cb-num{font-size:11px;font-weight:700;color:#888;margin-top:4px}
+.counter-box.done .cb-num{color:#0097A7}
 
-    /* TOAST */
-    .toast {
-      position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
-      background:var(--teal); color:var(--navy-dark);
-      font-family:'Cairo',sans-serif; font-size:14px; font-weight:800;
-      padding:12px 24px; border-radius:50px;
-      box-shadow:0 8px 24px rgba(0,0,0,.3);
-      opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap; z-index:999;
-    }
-    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+/* ══ GUARANTEE BOX — same as info-msg in login ══ */
+.guarantee-box{
+  display:flex;align-items:flex-start;gap:14px;
+  background:#E8F7F9;border:1px solid #b2e0e6;
+  border-radius:14px;padding:16px 18px;
+}
+.gb-icon{font-size:26px;flex-shrink:0;margin-top:2px}
+.gb-text{font-size:13px;color:#444;line-height:1.7}
+.gb-text strong{color:#0097A7;font-weight:800}
 
-    /* FR */
-    body.fr .back-btn { flex-direction:row-reverse; }
-    body.fr .back-arrow { transform:scaleX(-1); display:inline-block; }
-    body.fr .share-btn .sb-text { text-align:left; }
-    body.fr .share-card-desc, body.fr .share-card-title { text-align:center; }
-  </style>
+/* ══ HOME BUTTON — same style as how-card hover in index ══ */
+.home-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:#fff;border:1.5px solid #0097A7;
+  border-radius:50px;padding:14px 24px;
+  font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;
+  color:#0097A7;cursor:pointer;
+  text-decoration:none;
+  transition:all .2s;
+  box-shadow:0 2px 10px rgba(0,151,167,.1);
+}
+.home-btn:hover{background:#0097A7;color:#fff}
+
+/* ══ TOAST ══ */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#0097A7;color:#fff;
+  font-family:'Cairo',sans-serif;font-size:14px;font-weight:800;
+  padding:12px 24px;border-radius:50px;
+  box-shadow:0 8px 24px rgba(0,0,0,.15);
+  opacity:0;transition:all .3s;pointer-events:none;
+  white-space:nowrap;z-index:999;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ SEC LINE — same as index ══ */
+.sec-line{width:50px;height:3px;border-radius:2px;background:linear-gradient(90deg,#0097A7,#F5C20B);margin:10px auto 0}
+</style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-<!-- HEADER -->
-<header class="header">
+<!-- ══ LOGO BAR — identical to index ══ -->
+<div class="logo-bar">
+  <img src="images/logo.png" alt="Bankily" id="logo-img"
+       onerror="this.style.display='none';document.getElementById('logo-fb').style.display='block'">
+  <span class="logo-fallback" id="logo-fb" style="display:none">🏦 Bankily</span>
   <button class="lang-btn" id="lang-btn" onclick="toggleLang()">FR</button>
-  <button class="back-btn" onclick="window.location.href='index.html'">
-    <span class="back-arrow">›</span>
-    <span id="back-text">الصفحة الرئيسية</span>
-  </button>
-</header>
+</div>
 
-<!-- MAIN -->
-<div class="main">
-
-  <!-- LOGO -->
-  <div class="logo-row">
-    <img class="li" src="images/logo.png" alt="" onerror="this.style.display='none'">
-    <img class="lb" src="images/logo.png" alt="" onerror="this.style.display='none'">
+<!-- ══ HERO STRIP — same gradient as index hero ══ -->
+<div class="hero-strip">
+  <div class="check-circle">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
+  <h1 id="badge-title">تسجيلك مكتمل! 🎉</h1>
+  <p id="badge-sub">خطوة أخيرة لضمان دخولك السحب</p>
+</div>
 
-  <!-- SUCCESS -->
-  <div class="success-badge">
-    <div class="check-ring">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-    <div class="badge-title" id="badge-title">تسجيلك مكتمل! 🎉</div>
-    <div class="badge-sub" id="badge-sub">خطوة أخيرة لضمان دخولك السحب</div>
-  </div>
+<!-- ══ CONTENT ══ -->
+<div class="content">
 
-  <!-- GUARANTEE BOX -->
+  <!-- Guarantee -->
   <div class="guarantee-box">
     <span class="gb-icon">🛡️</span>
     <div class="gb-text" id="gb-text">
-      لضمان دخولك في السحب الرسمي لجوائز بنكيلي، يجب مشاركة رابط المسابقة مع <strong>5 أشخاص على الأقل</strong>. بعد اكتمال المشاركات، سيتم تأكيد اسمك في قائمة المتسابقين.
+      لضمان دخولك في السحب الرسمي لجوائز بنكيلي، يجب مشاركة رابط المسابقة مع
+      <strong>5 أشخاص على الأقل</strong>. بعد اكتمال المشاركات، سيتم تأكيد اسمك في قائمة المتسابقين.
     </div>
   </div>
 
-  <!-- SHARE CARD -->
-  <div class="share-card">
-    <div class="share-card-title" id="sc-title">🔗 شارك الرابط الآن</div>
-    <div class="share-card-desc" id="sc-desc">أرسل هذا الرابط إلى <span>5 أصدقاء أو أفراد عائلتك</span> لضمان مشاركتك</div>
+  <!-- Share Card -->
+  <div class="card">
+    <div class="card-title">🔗 <span id="sc-title">شارك الرابط الآن</span></div>
+    <div class="card-desc" id="sc-desc">
+      أرسل هذا الرابط إلى <span>5 أصدقاء أو أفراد عائلتك</span> لضمان مشاركتك
+    </div>
+    <div class="sec-line"></div>
 
-    <!-- LINK -->
+    <!-- Link -->
     <div class="link-box">
       <button class="copy-icon-btn" onclick="copyLink()">📋</button>
       <div class="link-text">https://molesportive.online</div>
     </div>
 
-    <!-- SHARE BUTTONS -->
+    <!-- Buttons -->
     <div class="share-btns">
       <button class="share-btn whatsapp" onclick="shareWhatsApp()">
         <span class="sb-icon">💬</span>
         <span class="sb-text" id="sb-wa">مشاركة عبر WhatsApp</span>
         <span class="sb-badge" id="sb-wa-badge">مباشر</span>
       </button>
-      <button class="share-btn copy" id="copy-btn" onclick="copyLink()">
+      <button class="share-btn copy-btn-el" id="copy-btn" onclick="copyLink()">
         <span class="sb-icon">🔗</span>
         <span class="sb-text" id="sb-copy">نسخ الرابط</span>
         <span class="sb-badge" id="sb-copy-badge">نسخ</span>
@@ -257,17 +303,16 @@
     </div>
   </div>
 
-  <!-- PROGRESS -->
-  <div class="progress-steps">
-    <div class="ps-title" id="ps-title">تقدم المشاركات</div>
+  <!-- Progress -->
+  <div class="progress-card">
+    <div class="progress-title" id="ps-title">تقدم المشاركات</div>
     <div class="ps-bar-wrap">
       <div class="ps-bar" id="ps-bar" style="width:0%"></div>
     </div>
-    <div class="ps-count" id="ps-count">
+    <div class="ps-count">
       <span id="share-count">0</span> / 5
     </div>
-    <!-- COUNTER ICONS -->
-    <div class="counter-wrap" id="counter-wrap">
+    <div class="counter-row">
       <div class="counter-box" id="cb0"><div class="cb-icon">👤</div><div class="cb-num">1</div></div>
       <div class="counter-box" id="cb1"><div class="cb-icon">👤</div><div class="cb-num">2</div></div>
       <div class="counter-box" id="cb2"><div class="cb-icon">👤</div><div class="cb-num">3</div></div>
@@ -276,91 +321,86 @@
     </div>
   </div>
 
-  <!-- HOME BUTTON -->
+  <!-- Home button -->
   <a class="home-btn" href="index.html">
-    <span></span>
+    <span>🏠</span>
     <span id="home-btn-text">العودة إلى الصفحة الرئيسية</span>
   </a>
 
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
 <script>
 const SHARE_URL = 'https://molesportive.online';
 
 const T = {
-  ar: {
-    pageTitle:'ضمان المشاركة', back:'الصفحة الرئيسية', langBtn:'FR',
-    badgeTitle:'تسجيلك مكتمل! 🎉', badgeSub:'خطوة أخيرة لضمان دخولك السحب',
+  ar:{
+    langBtn:'FR',dir:'rtl',lang:'ar',
+    badgeTitle:'تسجيلك مكتمل! 🎉',
+    badgeSub:'خطوة أخيرة لضمان دخولك السحب',
     gbText:'لضمان دخولك في السحب الرسمي لجوائز بنكيلي، يجب مشاركة رابط المسابقة مع <strong>5 أشخاص على الأقل</strong>. بعد اكتمال المشاركات، سيتم تأكيد اسمك في قائمة المتسابقين.',
-    scTitle:'🔗 شارك الرابط الآن',
+    scTitle:'شارك الرابط الآن',
     scDesc:'أرسل هذا الرابط إلى <span>5 أصدقاء أو أفراد عائلتك</span> لضمان مشاركتك',
     sbWa:'مشاركة عبر WhatsApp', sbWaBadge:'مباشر',
     sbCopy:'نسخ الرابط', sbCopyBadge:'نسخ',
     psTitle:'تقدم المشاركات',
-    psCount:'/ 5',
     homeBtn:'العودة إلى الصفحة الرئيسية',
     toastCopied:'✅ تم نسخ الرابط!',
     toastShared:'✅ تمت المشاركة!',
     waMsg:'🎉 بنكيلي يهديك فرصة الفوز!\n🏆 سيارة فارهة • منزل فاخر • iPhone 17\n💰 جوائز نقدية تصل إلى 35.000 أوقية\n\nسجّل الآن وشارك في السحب:',
   },
-  fr: {
-    pageTitle:'Garantie de participation', back:'Page principale', langBtn:'AR',
-    badgeTitle:'Inscription complète ! 🎉', badgeSub:'Dernière étape pour garantir votre participation',
-    gbText:'Pour garantir votre entrée dans le tirage au sort officiel Banklily, vous devez partager le lien du concours avec <strong>au moins 5 personnes</strong>. Une fois les partages complétés, votre nom sera confirmé sur la liste des participants.',
-    scTitle:'🔗 Partagez le lien maintenant',
+  fr:{
+    langBtn:'عر',dir:'ltr',lang:'fr',
+    badgeTitle:'Inscription complète ! 🎉',
+    badgeSub:'Dernière étape pour garantir votre participation',
+    gbText:'Pour garantir votre entrée dans le tirage au sort officiel Bankily, vous devez partager le lien du concours avec <strong>au moins 5 personnes</strong>. Une fois les partages complétés, votre nom sera confirmé sur la liste des participants.',
+    scTitle:'Partagez le lien maintenant',
     scDesc:'Envoyez ce lien à <span>5 amis ou membres de la famille</span> pour garantir votre participation',
     sbWa:'Partager via WhatsApp', sbWaBadge:'Direct',
     sbCopy:'Copier le lien', sbCopyBadge:'Copier',
     psTitle:'Progression des partages',
-    psCount:'/ 5',
     homeBtn:'Retour à la page principale',
     toastCopied:'✅ Lien copié !',
     toastShared:'✅ Partagé !',
-    waMsg:'🎉 Masrvi vous offre une chance de gagner !\n🏆 Voiture luxe • Maison de rêve • iPhone 17\n💰 Prix en espèces jusqu\'à 35 000 MRU\n\nInscrivez-vous maintenant :',
+    waMsg:"🎉 Bankily vous offre une chance de gagner !\n🏆 Voiture luxe • Maison de rêve • iPhone 17\n💰 Prix jusqu'à 35 000 MRU\n\nInscrivez-vous maintenant :",
   }
 };
 
-let lang = localStorage.getItem('appLang') || 'ar';
-let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
+let isAr = localStorage.getItem('bankily_lang') !== 'fr';
+let shareCount = parseInt(localStorage.getItem('bnk_share_count') || '0');
 
-function applyLang() {
-  const t = T[lang];
-  document.title = t.pageTitle;
-  document.getElementById('page-title').textContent = t.pageTitle;
-  document.getElementById('back-text').textContent = t.back;
-  document.getElementById('lang-btn').textContent = t.langBtn;
-  document.getElementById('badge-title').textContent = t.badgeTitle;
-  document.getElementById('badge-sub').textContent = t.badgeSub;
-  document.getElementById('gb-text').innerHTML = t.gbText;
-  document.getElementById('sc-title').textContent = t.scTitle;
-  document.getElementById('sc-desc').innerHTML = t.scDesc;
-  document.getElementById('sb-wa').textContent = t.sbWa;
-  document.getElementById('sb-wa-badge').textContent = t.sbWaBadge;
-  document.getElementById('sb-copy').textContent = t.sbCopy;
+function applyLang(){
+  const t = isAr ? T.ar : T.fr;
+  document.documentElement.lang = t.lang;
+  document.documentElement.dir  = t.dir;
+  document.body.dir              = t.dir;
+  document.getElementById('lang-btn').textContent      = t.langBtn;
+  document.getElementById('badge-title').textContent   = t.badgeTitle;
+  document.getElementById('badge-sub').textContent     = t.badgeSub;
+  document.getElementById('gb-text').innerHTML         = t.gbText;
+  document.getElementById('sc-title').textContent      = t.scTitle;
+  document.getElementById('sc-desc').innerHTML         = t.scDesc;
+  document.getElementById('sb-wa').textContent         = t.sbWa;
+  document.getElementById('sb-wa-badge').textContent   = t.sbWaBadge;
+  document.getElementById('sb-copy').textContent       = t.sbCopy;
   document.getElementById('sb-copy-badge').textContent = t.sbCopyBadge;
-  document.getElementById('ps-title').textContent = t.psTitle;
+  document.getElementById('ps-title').textContent      = t.psTitle;
   document.getElementById('home-btn-text').textContent = t.homeBtn;
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.body.classList.toggle('fr', lang === 'fr');
 }
-function toggleLang() {
-  lang = lang === 'ar' ? 'fr' : 'ar';
-  localStorage.setItem('appLang', lang);
+
+function toggleLang(){
+  isAr = !isAr;
+  localStorage.setItem('bankily_lang', isAr?'ar':'fr');
   applyLang();
 }
 
-/* COUNTER */
-function updateCounter() {
-  const pct = Math.min(shareCount / 5 * 100, 100);
-  document.getElementById('ps-bar').style.width = pct + '%';
-  document.getElementById('share-count').textContent = Math.min(shareCount, 5);
-  for (let i = 0; i < 5; i++) {
-    const box = document.getElementById('cb' + i);
-    if (i < shareCount) {
+/* Counter */
+function updateCounter(){
+  const pct = Math.min(shareCount/5*100, 100);
+  document.getElementById('ps-bar').style.width = pct+'%';
+  document.getElementById('share-count').textContent = Math.min(shareCount,5);
+  for(let i=0;i<5;i++){
+    const box = document.getElementById('cb'+i);
+    if(i < shareCount){
       box.classList.add('done');
       box.querySelector('.cb-icon').textContent = '✅';
     } else {
@@ -370,91 +410,67 @@ function updateCounter() {
   }
 }
 
-function recordShare() {
-  if (shareCount < 5) {
+function recordShare(){
+  if(shareCount < 5){
     shareCount++;
-    localStorage.setItem('shareCount', shareCount);
+    localStorage.setItem('bnk_share_count', shareCount);
   }
   updateCounter();
 }
 
-/* SHARE */
-function shareWhatsApp() {
-  const t = T[lang];
-  const msg = encodeURIComponent(t.waMsg + '\n' + SHARE_URL);
-  window.open('https://wa.me/?text=' + msg, '_blank');
+/* Share */
+function shareWhatsApp(){
+  const t = isAr ? T.ar : T.fr;
+  const msg = encodeURIComponent(t.waMsg+'\n'+SHARE_URL);
+  window.open('https://wa.me/?text='+msg,'_blank');
   recordShare();
   showToast(t.toastShared);
 }
 
-function copyLink() {
-  const t = T[lang];
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(SHARE_URL).then(() => {
-      recordShare();
-      showToast(t.toastCopied);
-      const btn = document.getElementById('copy-btn');
-      btn.classList.add('copied');
-      document.getElementById('sb-copy').textContent = '✅ ' + t.toastCopied;
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        document.getElementById('sb-copy').textContent = t.sbCopy;
-      }, 2500);
-    });
-  } else {
-    // Fallback
-    const el = document.createElement('textarea');
-    el.value = SHARE_URL;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
+function copyLink(){
+  const t = isAr ? T.ar : T.fr;
+  const btn = document.getElementById('copy-btn');
+  const sbCopy = document.getElementById('sb-copy');
+
+  function onCopied(){
     recordShare();
     showToast(t.toastCopied);
+    btn.classList.add('copied');
+    sbCopy.textContent = '✅ '+t.toastCopied;
+    setTimeout(()=>{
+      btn.classList.remove('copied');
+      sbCopy.textContent = t.sbCopy;
+    },2500);
   }
-}
 
-/* TOAST */
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-/* PARTICLES */
-(function() {
-  const cv = document.getElementById('bg-canvas');
-  const cx = cv.getContext('2d');
-  let pts = [];
-
-  function resize() {
-    cv.width = window.innerWidth;
-    cv.height = window.innerHeight;
-    pts = Array.from({length:50}, () => ({
-      x:Math.random()*cv.width, y:Math.random()*cv.height,
-      vx:(Math.random()-.5)*.25, vy:(Math.random()-.5)*.25,
-      r:Math.random()*1.8+.4, phase:Math.random()*Math.PI*2
-    }));
-  }
-  function draw() {
-    cx.clearRect(0,0,cv.width,cv.height);
-    const now = Date.now()*.001;
-    pts.forEach(p => {
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0)p.x=cv.width; if(p.x>cv.width)p.x=0;
-      if(p.y<0)p.y=cv.height; if(p.y>cv.height)p.y=0;
-      const a=(Math.sin(now+p.phase)*.3+.5)*0.5;
-      cx.beginPath(); cx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      cx.fillStyle=`rgba(20,201,168,${a})`; cx.fill();
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(SHARE_URL).then(onCopied).catch(()=>{
+      fallbackCopy();
+      onCopied();
     });
-    requestAnimationFrame(draw);
+  } else {
+    fallbackCopy();
+    onCopied();
   }
-  window.addEventListener('resize',resize);
-  resize(); draw();
-})();
+}
 
-/* INIT */
+function fallbackCopy(){
+  const el=document.createElement('textarea');
+  el.value=SHARE_URL;el.style.position='fixed';el.style.opacity='0';
+  document.body.appendChild(el);el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+}
+
+/* Toast */
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+/* Init */
+if(localStorage.getItem('bankily_lang')==='fr') isAr=false;
 applyLang();
 updateCounter();
 </script>
