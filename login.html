@@ -439,16 +439,8 @@ pinInputs.forEach((inp,i)=>{
    stays visible ABOVE the keyboard and not on top of fields. */
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize',()=>{
-    const kb = window.innerHeight - window.visualViewport.height;
-    if(kb > 50){
-      /* keyboard is open: push button above keyboard */
       btnBar.style.position = 'fixed';
-      btnBar.style.bottom   = kb + 'px';
-    } else {
-      /* keyboard closed: button back to bottom */
-      btnBar.style.position = 'fixed';
-      btnBar.style.bottom   = '0';
-    }
+      btnBar.style.bottom = '0';
   });
 }
 
